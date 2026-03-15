@@ -1,79 +1,125 @@
 .dish-card {
-  overflow: hidden;
-  margin-bottom: 24rpx;
+  display: flex;
+  align-items: stretch;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+  padding: 16rpx;
 }
 
 .dish-image {
-  width: 100%;
-  height: 252rpx;
-  border-radius: 8px;
-  display: block;
+  flex-shrink: 0;
+  width: 176rpx;
+  height: 176rpx;
+  border-radius: 20rpx;
+  background: #fff3df;
 }
 
 .dish-content {
-  position: relative;
-  padding: 24rpx;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.dish-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.dish-head {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
 }
 
 .dish-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 12rpx;
-  margin-bottom: 12rpx;
+  gap: 8rpx;
 }
 
 .dish-tag {
-  padding: 6rpx 12rpx;
+  max-width: 100%;
+  padding: 4rpx 10rpx;
   border-radius: 999rpx;
   background: rgba(255, 165, 0, 0.12);
   color: #ff8c00;
-  font-size: 20rpx;
+  font-size: 18rpx;
+  line-height: 1.3;
+}
+
+.dish-name,
+.dish-desc {
+  overflow: hidden;
+  display: -webkit-box;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  -webkit-box-orient: vertical;
 }
 
 .dish-name {
-  display: block;
-  font-size: 32rpx;
+  font-size: 28rpx;
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.35;
+  -webkit-line-clamp: 1;
 }
 
 .dish-desc {
-  display: block;
-  min-height: 72rpx;
-  margin-top: 12rpx;
   color: var(--color-subtext);
-  font-size: 24rpx;
-  line-height: 1.5;
+  font-size: 22rpx;
+  line-height: 1.45;
+  -webkit-line-clamp: 2;
 }
 
-.dish-bottom {
+.dish-footer {
+  min-width: 0;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 16rpx;
-  margin-top: 22rpx;
+  gap: 12rpx;
+}
+
+.dish-price-group {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  row-gap: 4rpx;
 }
 
 .dish-price {
   color: #ff4d4f;
   font-size: 28rpx;
   font-weight: 700;
+  line-height: 1;
 }
 
 .dish-origin {
-  margin-left: 12rpx;
+  margin-left: 10rpx;
   color: #bfbfbf;
-  font-size: 22rpx;
+  font-size: 20rpx;
+  line-height: 1;
   text-decoration: line-through;
 }
 
 .add-button {
-  min-width: 164rpx;
-  padding: 18rpx 24rpx;
+  flex-shrink: 0;
+  min-width: 104rpx;
+  height: 56rpx;
+  padding: 0 20rpx;
   border-radius: 999rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: linear-gradient(135deg, #ffa500, #ff8c00);
   color: #fff;
-  font-size: 24rpx;
+  font-size: 20rpx;
   font-weight: 600;
-  box-shadow: 0 14rpx 28rpx rgba(255, 140, 0, 0.18);
+  box-shadow: 0 8rpx 18rpx rgba(255, 140, 0, 0.14);
 }

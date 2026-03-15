@@ -43,25 +43,14 @@
     />
   </view>
 
-  <view class="waterfall">
-    <view class="waterfall-column">
-      <dish-card
-        wx:for="{{leftColumn}}"
-        wx:key="_id"
-        dish="{{item}}"
-        bind:select="handleDishSelect"
-        bind:add="handleAddDish"
-      />
-    </view>
-    <view class="waterfall-column">
-      <dish-card
-        wx:for="{{rightColumn}}"
-        wx:key="_id"
-        dish="{{item}}"
-        bind:select="handleDishSelect"
-        bind:add="handleAddDish"
-      />
-    </view>
+  <view class="dish-list">
+    <dish-card
+      wx:for="{{dishList}}"
+      wx:key="_id"
+      dish="{{item}}"
+      bind:select="handleDishSelect"
+      bind:add="handleAddDish"
+    />
   </view>
 
   <view wx:if="{{!hasMore}}" class="load-tip">已经到底啦，换个分类试试</view>

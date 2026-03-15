@@ -6,21 +6,23 @@
     lazy-load
   />
   <view class="dish-content">
-    <view class="dish-tags">
-      <text wx:for="{{dish.tags}}" wx:key="*this" class="dish-tag">
-        {{item}}
-      </text>
-    </view>
-    <text class="dish-name">{{dish.name}}</text>
-    <text class="dish-desc">{{dish.description}}</text>
-    <view class="dish-bottom">
-      <view>
-        <text class="dish-price">¥{{dish.priceText}}</text>
-        <text wx:if="{{dish.originPriceText}}" class="dish-origin">
-          ¥{{dish.originPriceText}}
-        </text>
+    <view class="dish-main">
+      <view class="dish-head">
+        <view class="dish-name">{{dish.name}}</view>
+        <view wx:if="{{dish.tags && dish.tags.length}}" class="dish-tags">
+          <block wx:for="{{dish.tags}}" wx:key="*this">
+            <text wx:if="{{index < 2}}" class="dish-tag">{{item}}</text>
+          </block>
+        </view>
       </view>
-      <button class="add-button" catchtap="handleAdd">加入购物车</button>
+      <view class="dish-desc">{{dish.description}}</view>
+    </view>
+    <view class="dish-footer">
+      <view class="dish-price-group">
+        <text class="dish-price">￥{{dish.priceText}}</text>
+        <text wx:if="{{dish.originPriceText}}" class="dish-origin">￥{{dish.originPriceText}}</text>
+      </view>
+      <button class="add-button" catchtap="handleAdd">加入</button>
     </view>
   </view>
 </view>

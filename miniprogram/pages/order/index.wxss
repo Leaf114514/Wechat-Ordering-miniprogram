@@ -100,14 +100,8 @@
   font-size: 24rpx;
 }
 
-.waterfall {
-  display: flex;
-  gap: 18rpx;
+.dish-list {
   margin-top: 24rpx;
-}
-
-.waterfall-column {
-  flex: 1;
 }
 
 .load-tip {

@@ -3,15 +3,12 @@ const dishService = require('../../services/dishService')
 const cartService = require('../../services/cartService')
 const orderService = require('../../services/orderService')
 const userService = require('../../services/userService')
-const { splitWaterfallList } = require('../../utils/formatter')
 
 Page({
   data: {
     categories: [],
     activeCategory: '全部',
     dishList: [],
-    leftColumn: [],
-    rightColumn: [],
     cartItems: [],
     cartSummary: {
       totalCount: 0,
@@ -115,13 +112,9 @@ Page({
     const dishList = reset
       ? result.list
       : this.data.dishList.concat(result.list)
-    const columns = splitWaterfallList(dishList)
-
     this.setData({
       pageNo,
       dishList,
-      leftColumn: columns.left,
-      rightColumn: columns.right,
       hasMore: result.hasMore
     })
   },
