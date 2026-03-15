@@ -1,0 +1,73 @@
+<view class="profile-page fade-enter">
+  <view wx:if="{{currentUser}}" class="profile-card card-surface">
+    <image class="avatar" src="{{currentUser.avatarUrl}}" mode="aspectFill" />
+    <view class="profile-main">
+      <text class="profile-name">{{currentUser.nickname}}</text>
+      <text class="profile-role">
+        身份：{{currentUser.role === 'admin' ? '管理员' : '普通用户'}}
+      </text>
+      <text class="profile-favorite">
+        偏好：{{currentUser.favoriteCategories.join('、')}}
+      </text>
+    </view>
+  </view>
+
+  <view class="switcher card-surface">
+    <text class="section-title">演示权限切换</text>
+    <text wx:if="{{useMockData}}" class="section-subtitle">
+      Mock 模式下可在用户与管理员视角间快速切换。
+    </text>
+    <text wx:else class="section-subtitle">
+      正式环境请在 users 集合维护 role 字段。
+    </text>
+    <view wx:if="{{useMockData}}" class="switch-actions">
+      <button class="light-button" bindtap="switchCustomer">普通用户</button>
+      <button class="primary-button" bindtap="switchAdmin">管理员</button>
+    </view>
+  </view>
+
+  <view wx:if="{{metrics}}" class="metrics-grid">
+    <view class="metric-card card-surface">
+      <text class="metric-label">累计订单</text>
+      <text class="metric-value">{{metrics.totalOrders}}</text>
+    </view>
+    <view class="metric-card card-surface">
+      <text class="metric-label">累计消费</text>
+      <text class="metric-value">¥{{metrics.totalAmountText}}</text>
+    </view>
+    <view class="metric-card card-surface">
+      <text class="metric-label">制作中</text>
+      <text class="metric-value">{{metrics.preparing}}</text>
+    </view>
+    <view class="metric-card card-surface">
+      <text class="metric-label">已完成</text>
+      <text class="metric-value">{{metrics.completed}}</text>
+    </view>
+  </view>
+
+  <view class="recommend-card card-surface">
+    <text class="section-title">继续尝鲜</text>
+    <view wx:for="{{recommendList}}" wx:key="_id" class="recommend-row">
+      <text>{{item.name}}</text>
+      <text class="recommend-note">{{item.reason}}</text>
+    </view>
+  </view>
+
+  <view class="env-card card-surface">
+    <text class="section-title">环境说明</text>
+    <text class="env-text">
+      当前模式：{{useMockData ? '本地 Mock 演示' : '云开发正式模式'}}
+    </text>
+    <text class="env-text">cloudEnvId：{{cloudEnvId}}</text>
+    <view class="switch-actions">
+      <button class="light-button" bindtap="handleNavigate"
+        data-url="/pages/orders/index">
+        查看订单
+      </button>
+      <button class="primary-button" bindtap="handleNavigate"
+        data-url="/pages/home/index">
+        返回首页
+      </button>
+    </view>
+  </view>
+</view>

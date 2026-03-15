@@ -1,0 +1,29 @@
+[
+  {
+    "_id": "user-demo",
+    "openId": "mock-open-id-demo",
+    "nickname": "暖橙食客",
+    "avatarUrl": "/images/icons/avatar.png",
+    "role": "customer",
+    "favoriteCategories": [
+      "招牌主食",
+      "甜品饮品"
+    ],
+    "orderCount": 2,
+    "totalSpend": 84,
+    "lastLoginAt": 1773560400000
+  },
+  {
+    "_id": "user-admin",
+    "openId": "mock-open-id-admin",
+    "nickname": "店长小橙",
+    "avatarUrl": "/images/icons/avatar.png",
+    "role": "admin",
+    "favoriteCategories": [
+      "招牌主食"
+    ],
+    "orderCount": 0,
+    "totalSpend": 0,
+    "lastLoginAt": 1773560400000
+  }
+]

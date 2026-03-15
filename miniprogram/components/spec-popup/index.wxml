@@ -1,0 +1,40 @@
+<view wx:if="{{visible}}" class="popup-mask" catchtap="close">
+  <view class="popup-panel" catchtap="noop">
+    <view class="popup-head">
+      <image class="popup-image" src="{{dish.image}}" mode="aspectFill" />
+      <view class="popup-info">
+        <text class="popup-title">{{dish.name}}</text>
+        <text class="popup-desc">{{dish.description}}</text>
+      </view>
+      <button class="popup-close" bindtap="close">×</button>
+    </view>
+
+    <view wx:for="{{dish.specs}}" wx:key="name" class="spec-group">
+      <text class="spec-title">{{item.name}}</text>
+      <view class="spec-options">
+        <view
+          wx:for="{{item.options}}"
+          wx:key="label"
+          class="spec-option {{selectedMap[item.name] === item.label ? 'is-active' : ''}}"
+          bindtap="handleOptionTap"
+          data-group="{{item.name}}"
+          data-option="{{item.label}}"
+        >
+          <text>{{item.label}}</text>
+          <text wx:if="{{item.delta}}">+¥{{item.delta}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="popup-footer">
+      <view class="quantity-box">
+        <button class="qty-button" bindtap="decrease">-</button>
+        <text class="qty-value">{{quantity}}</text>
+        <button class="qty-button" bindtap="increase">+</button>
+      </view>
+      <button class="confirm-button ripple" bindtap="confirm">
+        加入购物车 ¥{{finalPriceText}}
+      </button>
+    </view>
+  </view>
+</view>

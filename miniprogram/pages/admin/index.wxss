@@ -1,0 +1,220 @@
+.admin-page {
+  min-height: 100vh;
+  padding: 28rpx 24rpx 48rpx;
+}
+
+.admin-head,
+.auth-card,
+.admin-card,
+.top-list,
+.stat-card {
+  margin-top: 24rpx;
+  padding: 28rpx;
+}
+
+.admin-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.ghost-button,
+.primary-button,
+.light-button {
+  padding: 18rpx 24rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.ghost-button,
+.light-button {
+  background: #fff6e7;
+  color: #ff8c00;
+}
+
+.primary-button {
+  background: linear-gradient(135deg, #ffa500, #ff8c00);
+  color: #fff;
+}
+
+.light-button.is-danger {
+  background: #fff1ec;
+  color: #ff5c3c;
+}
+
+.auth-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.auth-desc,
+.admin-dish-desc,
+.order-user {
+  display: block;
+  margin-top: 12rpx;
+  color: var(--color-subtext);
+  font-size: 24rpx;
+  line-height: 1.6;
+}
+
+.tab-list {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 24rpx;
+}
+
+.tab-chip {
+  padding: 16rpx 26rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.86);
+  color: #666;
+  font-size: 24rpx;
+}
+
+.tab-chip.is-active {
+  background: linear-gradient(135deg, #ffa500, #ff8c00);
+  color: #fff;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24rpx;
+}
+
+.toolbar-title,
+.order-id,
+.admin-dish-name {
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.admin-dish-head,
+.order-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.admin-dish-image {
+  width: 108rpx;
+  height: 108rpx;
+  border-radius: 18rpx;
+}
+
+.admin-dish-main {
+  flex: 1;
+}
+
+.admin-dish-meta,
+.order-total {
+  display: block;
+  margin-top: 10rpx;
+  color: var(--color-subtext);
+  font-size: 22rpx;
+}
+
+.dish-status {
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+}
+
+.dish-status.is-on {
+  background: #eefaf3;
+  color: #3aa76d;
+}
+
+.dish-status.is-off {
+  background: #f2f2f2;
+  color: #999;
+}
+
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+  margin-top: 18rpx;
+}
+
+.stats-grid {
+  margin-top: 24rpx;
+  display: grid;
+  gap: 18rpx;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.stat-label {
+  display: block;
+  color: var(--color-subtext);
+  font-size: 22rpx;
+}
+
+.stat-value {
+  display: block;
+  margin-top: 14rpx;
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.top-list {
+  grid-column: 1 / -1;
+}
+
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 18rpx;
+  font-size: 24rpx;
+}
+
+.editor-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 90;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.editor-panel {
+  width: 100%;
+  padding: 30rpx;
+  border-radius: 32rpx 32rpx 0 0;
+  background: #fffdf9;
+}
+
+.editor-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.editor-input,
+.editor-picker,
+.editor-textarea {
+  width: 100%;
+  margin-top: 18rpx;
+  padding: 22rpx;
+  border-radius: 22rpx;
+  background: #fff8ef;
+  font-size: 24rpx;
+}
+
+.editor-textarea {
+  min-height: 160rpx;
+}
+
+.editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16rpx;
+  margin-top: 24rpx;
+}

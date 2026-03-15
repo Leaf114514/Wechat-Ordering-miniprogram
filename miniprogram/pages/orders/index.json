@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "我的订单",
+  "usingComponents": {
+    "status-chip": "/components/status-chip/index"
+  }
+}

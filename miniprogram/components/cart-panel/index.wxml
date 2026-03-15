@@ -1,0 +1,66 @@
+<view class="cart-shell {{expanded ? 'is-expanded' : ''}}">
+  <view wx:if="{{expanded}}" class="cart-list card-surface">
+    <scroll-view scroll-y class="cart-scroll">
+      <view wx:for="{{items}}" wx:key="itemKey" class="cart-row-wrap">
+        <button
+          class="delete-button"
+          bindtap="deleteItem"
+          data-key="{{item.itemKey}}"
+        >
+          删除
+        </button>
+        <view
+          class="cart-row {{activeSwipeKey === item.itemKey ? 'is-swiped' : ''}} {{animatedKey === item.itemKey ? 'scale-pop' : ''}}"
+          data-key="{{item.itemKey}}"
+          bindtouchstart="handleTouchStart"
+          bindtouchend="handleTouchEnd"
+        >
+          <image class="cart-image" src="{{item.image}}" mode="aspectFill" />
+          <view class="cart-main">
+            <text class="cart-name">{{item.name}}</text>
+            <text class="cart-spec">{{item.selectionText}}</text>
+            <text class="cart-price">¥{{item.priceText}}</text>
+          </view>
+          <view class="cart-qty">
+            <button
+              class="qty-action"
+              bindtap="changeQuantity"
+              data-key="{{item.itemKey}}"
+              data-delta="-1"
+            >
+              -
+            </button>
+            <text class="qty-count">{{item.quantity}}</text>
+            <button
+              class="qty-action"
+              bindtap="changeQuantity"
+              data-key="{{item.itemKey}}"
+              data-delta="1"
+            >
+              +
+            </button>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="checkout-bar card-surface">
+    <view class="cart-entry" bindtap="togglePanel">
+      <view class="cart-badge">{{summary.totalCount}}</view>
+      <view>
+        <text class="checkout-price">¥{{summary.totalPriceText}}</text>
+        <text class="checkout-tip">
+          {{summary.totalCount ? '点击展开购物车' : '请先添加菜品'}}
+        </text>
+      </view>
+    </view>
+    <button
+      class="checkout-button ripple {{!summary.totalCount ? 'is-disabled' : ''}}"
+      bindtap="checkout"
+      disabled="{{!summary.totalCount}}"
+    >
+      去结算
+    </button>
+  </view>
+</view>

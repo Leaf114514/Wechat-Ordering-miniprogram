@@ -1,0 +1,6 @@
+<view
+  class="status-chip"
+  style="color: {{meta.color}}; background: {{meta.background}};"
+>
+  {{meta.text}}
+</view>

@@ -1,0 +1,169 @@
+<view class="admin-page fade-enter">
+  <view class="admin-head card-surface">
+    <view>
+      <text class="section-title">管理员控制台</text>
+      <text class="section-subtitle">
+        菜品管理、订单处理、经营数据三位一体
+      </text>
+    </view>
+    <button class="ghost-button" bindtap="handleNavigate"
+      data-url="/pages/home/index">
+      返回首页
+    </button>
+  </view>
+
+  <view wx:if="{{!isAdmin}}" class="auth-card card-surface">
+    <text class="auth-title">当前账号暂无管理员权限</text>
+    <text class="auth-desc">
+      云开发正式环境请在 users 集合将 role 设置为 admin，
+      演示模式可一键切换管理员查看完整功能。
+    </text>
+    <button class="primary-button" bindtap="promoteMockAdmin">
+      切换演示管理员
+    </button>
+  </view>
+
+  <block wx:if="{{isAdmin}}">
+    <view class="tab-list">
+      <view
+        wx:for="{{tabs}}"
+        wx:key="key"
+        class="tab-chip {{activeTab === item.key ? 'is-active' : ''}}"
+        bindtap="handleTabTap"
+        data-tab="{{item.key}}"
+      >
+        {{item.text}}
+      </view>
+    </view>
+
+    <view wx:if="{{activeTab === 'dishes'}}">
+      <view class="toolbar">
+        <text class="toolbar-title">菜品列表</text>
+        <button class="primary-button" bindtap="openCreateEditor">
+          新增菜品
+        </button>
+      </view>
+
+      <view
+        wx:for="{{dishList}}"
+        wx:key="_id"
+        wx:for-item="dish"
+        class="admin-card card-surface"
+      >
+        <view class="admin-dish-head">
+          <image class="admin-dish-image" src="{{dish.image}}" mode="aspectFill" />
+          <view class="admin-dish-main">
+            <text class="admin-dish-name">{{dish.name}}</text>
+            <text class="admin-dish-meta">
+              {{dish.category}} · 库存 {{dish.stock}} · ¥{{dish.priceText}}
+            </text>
+          </view>
+          <view class="dish-status {{dish.isAvailable ? 'is-on' : 'is-off'}}">
+            {{dish.isAvailable ? '上架中' : '已下架'}}
+          </view>
+        </view>
+        <text class="admin-dish-desc">{{dish.description}}</text>
+        <view class="admin-actions">
+          <button class="light-button" bindtap="openEditEditor"
+            data-dish="{{dish}}">
+            编辑
+          </button>
+          <button class="light-button" bindtap="handleDishToggle"
+            data-dish="{{dish}}">
+            {{dish.isAvailable ? '下架' : '上架'}}
+          </button>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{activeTab === 'orders'}}">
+      <view
+        wx:for="{{orderList}}"
+        wx:key="_id"
+        wx:for-item="order"
+        class="admin-card card-surface"
+      >
+        <view class="order-row">
+          <view>
+            <text class="order-id">{{order._id}}</text>
+            <text class="order-user">用户 {{order.userId}}</text>
+          </view>
+          <status-chip status="{{order.status}}" />
+        </view>
+        <text class="order-total">¥{{order.totalPriceText}}</text>
+        <view class="admin-actions">
+          <button
+            wx:for="{{order.actions}}"
+            wx:key="key"
+            wx:for-item="action"
+            class="light-button {{action.danger ? 'is-danger' : ''}}"
+            bindtap="handleOrderAction"
+            data-order-id="{{order._id}}"
+            data-action="{{action.key}}"
+          >
+            {{action.text}}
+          </button>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{activeTab === 'stats' && dashboard}}" class="stats-grid">
+      <view class="stat-card card-surface">
+        <text class="stat-label">订单总量</text>
+        <text class="stat-value">{{dashboard.totalOrders}}</text>
+      </view>
+      <view class="stat-card card-surface">
+        <text class="stat-label">累计营收</text>
+        <text class="stat-value">¥{{dashboard.totalRevenueText}}</text>
+      </view>
+      <view class="stat-card card-surface">
+        <text class="stat-label">待处理</text>
+        <text class="stat-value">{{dashboard.pendingCount}}</text>
+      </view>
+      <view class="stat-card card-surface">
+        <text class="stat-label">上架菜品</text>
+        <text class="stat-value">{{dashboard.availableDishCount}}</text>
+      </view>
+      <view class="top-list card-surface">
+        <text class="section-title">热销 TOP 5</text>
+        <view
+          wx:for="{{dashboard.topDishes}}"
+          wx:key="_id"
+          wx:for-item="dish"
+          class="top-row"
+        >
+          <text>{{index + 1}}. {{dish.name}}</text>
+          <text>{{dish.sales}}</text>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <view wx:if="{{editorVisible}}" class="editor-mask" catchtap="closeEditor">
+    <view class="editor-panel" catchtap="noop">
+      <text class="editor-title">{{formData._id ? '编辑菜品' : '新增菜品'}}</text>
+      <input class="editor-input" placeholder="菜品名称"
+        value="{{formData.name}}" data-field="name"
+        bindinput="handleFieldInput" />
+      <picker range="{{categoryOptions}}" bindchange="handleCategoryChange">
+        <view class="editor-picker">分类：{{formData.category}}</view>
+      </picker>
+      <input class="editor-input" placeholder="价格"
+        value="{{formData.price}}" data-field="price"
+        bindinput="handleFieldInput" type="digit" />
+      <input class="editor-input" placeholder="库存"
+        value="{{formData.stock}}" data-field="stock"
+        bindinput="handleFieldInput" type="number" />
+      <input class="editor-input" placeholder="图片路径，可留空"
+        value="{{formData.image}}" data-field="image"
+        bindinput="handleFieldInput" />
+      <textarea class="editor-textarea" placeholder="菜品描述"
+        value="{{formData.description}}" data-field="description"
+        bindinput="handleFieldInput"></textarea>
+      <view class="editor-actions">
+        <button class="light-button" bindtap="closeEditor">取消</button>
+        <button class="primary-button" bindtap="submitDishForm">保存</button>
+      </view>
+    </view>
+  </view>
+</view>

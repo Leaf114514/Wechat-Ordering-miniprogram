@@ -1,0 +1,96 @@
+.profile-page {
+  min-height: 100vh;
+  padding: 28rpx 24rpx 48rpx;
+}
+
+.profile-card,
+.switcher,
+.recommend-card,
+.env-card,
+.metric-card {
+  margin-top: 24rpx;
+  padding: 28rpx;
+}
+
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+}
+
+.profile-main {
+  flex: 1;
+}
+
+.profile-name {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.profile-role,
+.profile-favorite,
+.env-text,
+.recommend-note {
+  display: block;
+  margin-top: 10rpx;
+  color: var(--color-subtext);
+  font-size: 24rpx;
+}
+
+.switch-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 22rpx;
+}
+
+.light-button,
+.primary-button {
+  padding: 18rpx 24rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.light-button {
+  background: #fff6e7;
+  color: #ff8c00;
+}
+
+.primary-button {
+  background: linear-gradient(135deg, #ffa500, #ff8c00);
+  color: #fff;
+}
+
+.metrics-grid {
+  display: grid;
+  gap: 18rpx;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.metric-label {
+  display: block;
+  color: var(--color-subtext);
+  font-size: 22rpx;
+}
+
+.metric-value {
+  display: block;
+  margin-top: 14rpx;
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.recommend-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-top: 18rpx;
+  font-size: 24rpx;
+}
