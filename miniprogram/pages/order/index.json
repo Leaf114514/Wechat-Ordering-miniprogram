@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "点餐",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "dish-card": "/components/dish-card/index",
+    "cart-panel": "/components/cart-panel/index",
+    "spec-popup": "/components/spec-popup/index"
+  }
+}

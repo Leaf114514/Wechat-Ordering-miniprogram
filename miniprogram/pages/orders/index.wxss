@@ -1,0 +1,142 @@
+.orders-page {
+  min-height: 100vh;
+  padding: 28rpx 24rpx 48rpx;
+}
+
+.orders-head,
+.empty,
+.order-card {
+  margin-top: 24rpx;
+  padding: 28rpx;
+}
+
+.orders-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.ghost-button {
+  align-self: flex-start;
+  padding: 18rpx 24rpx;
+  border-radius: 999rpx;
+  background: #fff6e7;
+  color: #ff8c00;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.filter-scroll {
+  margin-top: 24rpx;
+  white-space: nowrap;
+}
+
+.filter-list {
+  display: inline-flex;
+  gap: 16rpx;
+}
+
+.filter-chip {
+  padding: 16rpx 26rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.86);
+  color: #666;
+  font-size: 24rpx;
+}
+
+.filter-chip.is-active {
+  background: linear-gradient(135deg, #ffa500, #ff8c00);
+  color: #fff;
+}
+
+.empty-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.empty-subtitle {
+  display: block;
+  margin-top: 12rpx;
+  color: var(--color-subtext);
+  font-size: 24rpx;
+}
+
+.order-head,
+.order-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.order-id {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.order-time,
+.order-count {
+  display: block;
+  margin-top: 8rpx;
+  color: var(--color-subtext);
+  font-size: 22rpx;
+}
+
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  margin-top: 22rpx;
+  padding-top: 22rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.order-image {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 18rpx;
+}
+
+.order-main {
+  flex: 1;
+}
+
+.order-name {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.order-spec {
+  display: block;
+  margin-top: 8rpx;
+  color: var(--color-subtext);
+  font-size: 22rpx;
+}
+
+.order-meta,
+.order-total {
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.order-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 14rpx;
+}
+
+.order-action {
+  padding: 16rpx 22rpx;
+  border-radius: 999rpx;
+  background: #fff6e7;
+  color: #ff8c00;
+  font-size: 22rpx;
+}
+
+.order-action.is-danger {
+  background: #fff1ec;
+  color: #ff5c3c;
+}

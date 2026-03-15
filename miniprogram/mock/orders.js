@@ -1,0 +1,112 @@
+const mockOrders = [
+  {
+    _id: 'order-demo-1001',
+    userId: 'user-demo',
+    status: 'completed',
+    totalPrice: 50,
+    remark: '少冰，打包带走',
+    createdAt: 1773466800000,
+    updatedAt: 1773469800000,
+    stockRollbacked: false,
+    statusTimeline: {
+      pending_payment: 1773466800000,
+      preparing: 1773467400000,
+      completed: 1773469800000
+    },
+    items: [
+      {
+        itemKey: 'dish-1001-0',
+        dishId: 'dish-1001',
+        name: '橙香嫩煎鸡腿饭',
+        image: '/assets/dishes/dish-1.png',
+        quantity: 1,
+        price: 34,
+        selections: [
+          { groupName: '口味', optionLabel: '蜜汁橙香' },
+          { groupName: '辣度', optionLabel: '不辣' }
+        ]
+      },
+      {
+        itemKey: 'dish-1006-0',
+        dishId: 'dish-1006',
+        name: '茉莉橙柚气泡饮',
+        image: '/assets/dishes/dish-6.png',
+        quantity: 1,
+        price: 16,
+        selections: [
+          { groupName: '冰量', optionLabel: '少冰' },
+          { groupName: '甜度', optionLabel: '五分糖' }
+        ]
+      }
+    ]
+  },
+  {
+    _id: 'order-demo-1002',
+    userId: 'user-demo',
+    status: 'preparing',
+    totalPrice: 34,
+    remark: '尽快出餐',
+    createdAt: 1773553200000,
+    updatedAt: 1773555000000,
+    stockRollbacked: false,
+    statusTimeline: {
+      pending_payment: 1773553200000,
+      preparing: 1773555000000
+    },
+    items: [
+      {
+        itemKey: 'dish-1007-0',
+        dishId: 'dish-1007',
+        name: '番茄炖牛腩饭',
+        image: '/assets/dishes/dish-3.png',
+        quantity: 1,
+        price: 34,
+        selections: [
+          { groupName: '配菜', optionLabel: '时蔬' }
+        ]
+      }
+    ]
+  },
+  {
+    _id: 'order-demo-1003',
+    userId: 'user-admin',
+    status: 'pending_payment',
+    totalPrice: 42,
+    remark: '管理员演示订单',
+    createdAt: 1773558600000,
+    updatedAt: 1773558600000,
+    stockRollbacked: false,
+    statusTimeline: {
+      pending_payment: 1773558600000
+    },
+    items: [
+      {
+        itemKey: 'dish-1003-0',
+        dishId: 'dish-1003',
+        name: '炙烤牛肉能量碗',
+        image: '/assets/dishes/dish-3.png',
+        quantity: 1,
+        price: 38,
+        selections: [
+          { groupName: '酱汁', optionLabel: '凯撒风味' },
+          { groupName: '谷物底', optionLabel: '双拼' }
+        ]
+      },
+      {
+        itemKey: 'dish-1005-0',
+        dishId: 'dish-1005',
+        name: '蒜香脆薯配辣酱',
+        image: '/assets/dishes/dish-5.png',
+        quantity: 1,
+        price: 14,
+        selections: [
+          { groupName: '蘸酱', optionLabel: '香辣酱' }
+        ]
+      }
+    ]
+  }
+]
+
+module.exports = {
+  mockOrders
+}

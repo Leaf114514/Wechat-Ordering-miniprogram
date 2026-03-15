@@ -45,7 +45,7 @@
     "disableSWC": true
   },
   "appid": "wx4cda9631edc2e973",
-  "projectname": "quickstart-wx-cloud",
+  "projectname": "warm-orange-meal",
   "libVersion": "2.20.1",
   "cloudfunctionTemplateRoot": "cloudfunctionTemplate/",
   "condition": {
@@ -65,8 +65,8 @@
       "list": [
         {
           "id": -1,
-          "name": "db guide",
-          "pathName": "pages/databaseGuide/databaseGuide"
+          "name": "home",
+          "pathName": "pages/home/index"
         }
       ]
     }

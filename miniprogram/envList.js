@@ -1,6 +1,7 @@
-const envList = [];
-const isMac = false;
+const envList = []
+const isMac = false
+
 module.exports = {
   envList,
   isMac
-};
+}

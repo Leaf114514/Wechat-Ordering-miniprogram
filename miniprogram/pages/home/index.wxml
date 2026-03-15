@@ -1,0 +1,83 @@
+<view class="home-page fade-enter">
+  <view class="hero card-surface">
+    <view class="hero-main">
+      <text class="hero-title">{{restaurantProfile.name}}</text>
+      <text class="hero-subtitle">{{restaurantProfile.slogan}}</text>
+      <text class="hero-address">{{restaurantProfile.address}}</text>
+    </view>
+    <view class="hero-actions">
+      <button class="ghost-button" bindtap="openOrdersPage">我的订单</button>
+      <button class="ghost-button" bindtap="goUserTab">个人信息</button>
+    </view>
+  </view>
+
+  <view class="section card-surface">
+    <view class="section-head">
+      <view>
+        <text class="section-title">店长推荐</text>
+        <text class="section-subtitle">
+          管理员可自定义展示店铺主推菜品
+        </text>
+      </view>
+      <button wx:if="{{isAdmin}}" class="manage-button"
+        bindtap="openRecommendManager">
+        自定义入口
+      </button>
+    </view>
+
+    <view wx:if="{{manualRecommendList.length}}" class="hero-list">
+      <view wx:for="{{manualRecommendList}}" wx:key="_id" class="hero-card">
+        <image class="hero-image" src="{{item.image}}" mode="aspectFill" />
+        <view class="hero-card-main">
+          <text class="hero-card-title">{{item.name}}</text>
+          <text class="hero-card-desc">{{item.description}}</text>
+          <view class="hero-card-foot">
+            <text class="hero-card-price">¥{{item.priceText}}</text>
+            <button class="hero-card-button" bindtap="goOrderTab">
+              去点餐
+            </button>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:else class="empty-card">
+      <text class="empty-title">暂未设置自定义推荐</text>
+      <text class="empty-subtitle">
+        管理员可在首页入口或后台中配置展示菜品
+      </text>
+    </view>
+  </view>
+
+  <view class="section card-surface">
+    <view class="section-head">
+      <view>
+        <text class="section-title">销量热榜 TOP 8</text>
+        <text class="section-subtitle">
+          系统根据销量自动推荐本店最受欢迎的食品
+        </text>
+      </view>
+      <button class="manage-button light" bindtap="goOrderTab">去点餐</button>
+    </view>
+
+    <view class="sales-grid">
+      <view wx:for="{{topSalesList}}" wx:key="_id" class="sales-card">
+        <image class="sales-image" src="{{item.image}}" mode="aspectFill" />
+        <view class="sales-rank">TOP {{index + 1}}</view>
+        <text class="sales-name">{{item.name}}</text>
+        <view class="sales-meta">
+          <text class="sales-price">¥{{item.priceText}}</text>
+          <text class="sales-count">月售 {{item.sales}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="action-banner card-surface">
+    <view>
+      <text class="action-title">准备好开始点餐了吗？</text>
+      <text class="action-subtitle">所有点餐相关功能已统一迁移到点餐页</text>
+    </view>
+    <button class="primary-button" bindtap="goOrderTab">进入点餐页</button>
+  </view>
+</view>

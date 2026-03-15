@@ -1,0 +1,112 @@
+.order-page {
+  min-height: 100vh;
+  padding: 28rpx 24rpx 240rpx;
+}
+
+.store-banner,
+.login-tip,
+.remark-box {
+  margin-bottom: 24rpx;
+  padding: 30rpx;
+}
+
+.store-banner {
+  display: flex;
+  justify-content: space-between;
+  gap: 24rpx;
+  background:
+    linear-gradient(135deg, rgba(255, 165, 0, 0.16), rgba(255, 255, 255, 0.94));
+}
+
+.store-main {
+  flex: 1;
+}
+
+.store-title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 700;
+}
+
+.store-subtitle,
+.store-status,
+.login-tip-text {
+  display: block;
+  margin-top: 12rpx;
+  color: var(--color-subtext);
+  font-size: 24rpx;
+}
+
+.store-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.ghost-button,
+.primary-button {
+  padding: 18rpx 24rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.ghost-button {
+  background: #fff7ea;
+  color: #ff8c00;
+}
+
+.primary-button {
+  margin-top: 20rpx;
+  background: linear-gradient(135deg, #ffa500, #ff8c00);
+  color: #fff;
+}
+
+.login-tip-title,
+.remark-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.category-scroll {
+  white-space: nowrap;
+}
+
+.category-list {
+  display: inline-flex;
+  gap: 16rpx;
+}
+
+.category-chip {
+  padding: 18rpx 28rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.88);
+  color: #666;
+  font-size: 24rpx;
+}
+
+.category-chip.is-active {
+  background: linear-gradient(135deg, #ffa500, #ff8c00);
+  color: #fff;
+}
+
+.remark-input {
+  height: 84rpx;
+  margin-top: 18rpx;
+  padding: 0 22rpx;
+  border-radius: 22rpx;
+  background: #fff8ef;
+  font-size: 24rpx;
+}
+
+.dish-list {
+  margin-top: 24rpx;
+}
+
+.load-tip {
+  padding: 16rpx 0 32rpx;
+  color: var(--color-subtext);
+  text-align: center;
+  font-size: 22rpx;
+}
