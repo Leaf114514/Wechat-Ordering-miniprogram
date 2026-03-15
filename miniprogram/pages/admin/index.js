@@ -2,14 +2,16 @@ const dishService = require('../../services/dishService')
 const orderService = require('../../services/orderService')
 const adminService = require('../../services/adminService')
 const userService = require('../../services/userService')
-const { USER_ROLE, CATEGORY_LIST } = require('../../constants/index')
+const { CATEGORY_LIST, USER_ROLE } = require('../../constants/index')
 
 Page({
   data: {
     currentUser: null,
+    isLoggedIn: false,
     isAdmin: false,
-    activeTab: 'dishes',
+    activeTab: 'recommend',
     tabs: [
+      { key: 'recommend', text: '首页推荐' },
       { key: 'dishes', text: '菜品管理' },
       { key: 'orders', text: '订单处理' },
       { key: 'stats', text: '数据统计' }
@@ -17,6 +19,7 @@ Page({
     dishList: [],
     orderList: [],
     dashboard: null,
+    recommendCount: 0,
     editorVisible: false,
     formData: {
       _id: '',
@@ -25,45 +28,53 @@ Page({
       price: '',
       stock: '',
       description: '',
-      image: ''
+      image: '',
+      isManualRecommend: false
     },
     categoryOptions: CATEGORY_LIST.slice(1)
   },
 
   /**
    * 页面加载。
+   * @param {Object} options - 页面参数。
    */
-  async onLoad() {
-    await this.initializePage()
+  async onLoad(options) {
+    this.setData({
+      activeTab: options.tab || 'recommend'
+    })
+    await this.syncAdminState()
   },
 
   /**
    * 页面展示时刷新数据。
    */
   async onShow() {
-    if (this.data.currentUser) {
+    await this.syncAdminState()
+  },
+
+  /**
+   * 同步管理员状态。
+   */
+  async syncAdminState() {
+    const currentUser = userService.getCachedUser()
+    const isLoggedIn = Boolean(currentUser)
+    const isAdmin = Boolean(currentUser && currentUser.role === USER_ROLE.ADMIN)
+
+    this.setData({
+      currentUser,
+      isLoggedIn,
+      isAdmin
+    })
+
+    if (isAdmin) {
       await this.loadAdminData()
     }
   },
 
   /**
-   * 初始化管理员页面。
-   */
-  async initializePage() {
-    const currentUser = await userService.ensureCurrentUser()
-    const isAdmin = currentUser.role === USER_ROLE.ADMIN
-    this.setData({ currentUser, isAdmin })
-    await this.loadAdminData()
-  },
-
-  /**
-   * 根据权限加载后台数据。
+   * 加载后台数据。
    */
   async loadAdminData() {
-    if (!this.data.isAdmin) {
-      return
-    }
-
     try {
       const [dishList, orderList, dashboard] = await Promise.all([
         dishService.getAllDishes(true),
@@ -71,7 +82,12 @@ Page({
         adminService.getDashboard()
       ])
 
-      this.setData({ dishList, orderList, dashboard })
+      this.setData({
+        dishList,
+        orderList,
+        dashboard,
+        recommendCount: dishList.filter((item) => item.isManualRecommend).length
+      })
     } catch (error) {
       wx.showToast({
         title: error.message || '后台数据加载失败',
@@ -81,20 +97,34 @@ Page({
   },
 
   /**
-   * 切换演示管理员。
-   */
-  async promoteMockAdmin() {
-    const currentUser = await userService.switchMockRole(USER_ROLE.ADMIN)
-    this.setData({ currentUser, isAdmin: true })
-    await this.loadAdminData()
-  },
-
-  /**
    * 切换后台标签。
    * @param {Object} event - 事件对象。
    */
   handleTabTap(event) {
     this.setData({ activeTab: event.currentTarget.dataset.tab })
+  },
+
+  /**
+   * 切换首页推荐状态。
+   * @param {Object} event - 事件对象。
+   */
+  async handleRecommendToggle(event) {
+    const dish = this.data.dishList[
+      Number(event.currentTarget.dataset.index)
+    ]
+    try {
+      await adminService.setManualRecommend(dish._id, !dish.isManualRecommend)
+      wx.showToast({
+        title: '首页推荐已更新',
+        icon: 'success'
+      })
+      await this.loadAdminData()
+    } catch (error) {
+      wx.showToast({
+        title: error.message || '推荐更新失败',
+        icon: 'none'
+      })
+    }
   },
 
   /**
@@ -110,7 +140,8 @@ Page({
         price: '',
         stock: '',
         description: '',
-        image: ''
+        image: '',
+        isManualRecommend: false
       }
     })
   },
@@ -120,9 +151,12 @@ Page({
    * @param {Object} event - 事件对象。
    */
   openEditEditor(event) {
+    const dish = this.data.dishList[
+      Number(event.currentTarget.dataset.index)
+    ]
     this.setData({
       editorVisible: true,
-      formData: Object.assign({}, event.currentTarget.dataset.dish)
+      formData: Object.assign({}, dish)
     })
   },
 
@@ -158,12 +192,25 @@ Page({
   },
 
   /**
+   * 切换表单中的推荐状态。
+   */
+  handleFormRecommendSwitch() {
+    const formData = Object.assign({}, this.data.formData, {
+      isManualRecommend: !this.data.formData.isManualRecommend
+    })
+    this.setData({ formData })
+  },
+
+  /**
    * 保存菜品。
    */
   async submitDishForm() {
     const formData = this.data.formData
     if (!formData.name || !formData.price || !formData.stock) {
-      wx.showToast({ title: '请完整填写名称、价格、库存', icon: 'none' })
+      wx.showToast({
+        title: '请完整填写名称、价格、库存',
+        icon: 'none'
+      })
       return
     }
 
@@ -181,11 +228,13 @@ Page({
   },
 
   /**
-   * 切换菜品状态。
+   * 切换菜品上下架状态。
    * @param {Object} event - 事件对象。
    */
   async handleDishToggle(event) {
-    const dish = event.currentTarget.dataset.dish
+    const dish = this.data.dishList[
+      Number(event.currentTarget.dataset.index)
+    ]
     try {
       await adminService.toggleDishStatus(dish._id, !dish.isAvailable)
       wx.showToast({ title: '状态已更新', icon: 'success' })
@@ -213,11 +262,25 @@ Page({
   },
 
   /**
-   * 页面跳转。
-   * @param {Object} event - 事件对象。
+   * 切换演示管理员。
    */
-  handleNavigate(event) {
-    wx.navigateTo({ url: event.currentTarget.dataset.url })
+  async promoteMockAdmin() {
+    await userService.switchMockRole(USER_ROLE.ADMIN)
+    await this.syncAdminState()
+  },
+
+  /**
+   * 前往用户页登录。
+   */
+  goUserTab() {
+    wx.switchTab({ url: '/pages/user/index' })
+  },
+
+  /**
+   * 返回首页。
+   */
+  goHomeTab() {
+    wx.switchTab({ url: '/pages/home/index' })
   },
 
   /**

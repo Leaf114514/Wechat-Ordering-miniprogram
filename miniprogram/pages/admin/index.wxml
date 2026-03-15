@@ -3,27 +3,28 @@
     <view>
       <text class="section-title">管理员控制台</text>
       <text class="section-subtitle">
-        菜品管理、订单处理、经营数据三位一体
+        首页推荐、菜品管理、订单处理、数据统计统一维护
       </text>
     </view>
-    <button class="ghost-button" bindtap="handleNavigate"
-      data-url="/pages/home/index">
-      返回首页
-    </button>
+    <button class="ghost-button" bindtap="goHomeTab">返回首页</button>
   </view>
 
-  <view wx:if="{{!isAdmin}}" class="auth-card card-surface">
+  <view wx:if="{{!isLoggedIn}}" class="auth-card card-surface">
+    <text class="auth-title">当前还没有登录账号</text>
+    <text class="auth-desc">请先在“我的”页面完成微信登录后再进入管理后台。</text>
+    <button class="primary-button" bindtap="goUserTab">去登录</button>
+  </view>
+
+  <view wx:elif="{{!isAdmin}}" class="auth-card card-surface">
     <text class="auth-title">当前账号暂无管理员权限</text>
     <text class="auth-desc">
-      云开发正式环境请在 users 集合将 role 设置为 admin，
-      演示模式可一键切换管理员查看完整功能。
+      正式环境请在 users 集合将 role 设置为 admin。
+      Mock 模式下可直接切换演示管理员。
     </text>
-    <button class="primary-button" bindtap="promoteMockAdmin">
-      切换演示管理员
-    </button>
+    <button class="primary-button" bindtap="promoteMockAdmin">切换演示管理员</button>
   </view>
 
-  <block wx:if="{{isAdmin}}">
+  <block wx:elif="{{isAdmin}}">
     <view class="tab-list">
       <view
         wx:for="{{tabs}}"
@@ -36,20 +37,45 @@
       </view>
     </view>
 
+    <view wx:if="{{activeTab === 'recommend'}}">
+      <view class="summary-card card-surface">
+        <text class="summary-title">已配置首页推荐 {{recommendCount}} 道</text>
+        <text class="summary-desc">
+          开启后会展示在首页“店长推荐”模块中，用户与管理员均可见。
+        </text>
+      </view>
+
+      <view wx:for="{{dishList}}" wx:key="_id" wx:for-item="dish"
+        class="admin-card card-surface">
+        <view class="admin-dish-head">
+          <image class="admin-dish-image" src="{{dish.image}}" mode="aspectFill" />
+          <view class="admin-dish-main">
+            <text class="admin-dish-name">{{dish.name}}</text>
+            <text class="admin-dish-meta">
+              {{dish.category}} · 月售 {{dish.sales}} · ¥{{dish.priceText}}
+            </text>
+          </view>
+          <view class="dish-status {{dish.isManualRecommend ? 'is-on' : 'is-off'}}">
+            {{dish.isManualRecommend ? '已推荐' : '未推荐'}}
+          </view>
+        </view>
+        <view class="admin-actions">
+          <button class="light-button" bindtap="handleRecommendToggle"
+            data-index="{{index}}">
+            {{dish.isManualRecommend ? '取消推荐' : '设为推荐'}}
+          </button>
+        </view>
+      </view>
+    </view>
+
     <view wx:if="{{activeTab === 'dishes'}}">
       <view class="toolbar">
         <text class="toolbar-title">菜品列表</text>
-        <button class="primary-button" bindtap="openCreateEditor">
-          新增菜品
-        </button>
+        <button class="primary-button" bindtap="openCreateEditor">新增菜品</button>
       </view>
 
-      <view
-        wx:for="{{dishList}}"
-        wx:key="_id"
-        wx:for-item="dish"
-        class="admin-card card-surface"
-      >
+      <view wx:for="{{dishList}}" wx:key="_id" wx:for-item="dish"
+        class="admin-card card-surface">
         <view class="admin-dish-head">
           <image class="admin-dish-image" src="{{dish.image}}" mode="aspectFill" />
           <view class="admin-dish-main">
@@ -65,11 +91,11 @@
         <text class="admin-dish-desc">{{dish.description}}</text>
         <view class="admin-actions">
           <button class="light-button" bindtap="openEditEditor"
-            data-dish="{{dish}}">
+            data-index="{{index}}">
             编辑
           </button>
           <button class="light-button" bindtap="handleDishToggle"
-            data-dish="{{dish}}">
+            data-index="{{index}}">
             {{dish.isAvailable ? '下架' : '上架'}}
           </button>
         </view>
@@ -77,12 +103,8 @@
     </view>
 
     <view wx:if="{{activeTab === 'orders'}}">
-      <view
-        wx:for="{{orderList}}"
-        wx:key="_id"
-        wx:for-item="order"
-        class="admin-card card-surface"
-      >
+      <view wx:for="{{orderList}}" wx:key="_id" wx:for-item="order"
+        class="admin-card card-surface">
         <view class="order-row">
           <view>
             <text class="order-id">{{order._id}}</text>
@@ -126,12 +148,8 @@
       </view>
       <view class="top-list card-surface">
         <text class="section-title">热销 TOP 5</text>
-        <view
-          wx:for="{{dashboard.topDishes}}"
-          wx:key="_id"
-          wx:for-item="dish"
-          class="top-row"
-        >
+        <view wx:for="{{dashboard.topDishes}}" wx:key="_id" wx:for-item="dish"
+          class="top-row">
           <text>{{index + 1}}. {{dish.name}}</text>
           <text>{{dish.sales}}</text>
         </view>
@@ -160,6 +178,10 @@
       <textarea class="editor-textarea" placeholder="菜品描述"
         value="{{formData.description}}" data-field="description"
         bindinput="handleFieldInput"></textarea>
+      <view class="editor-switch" bindtap="handleFormRecommendSwitch">
+        <text>首页推荐：</text>
+        <text>{{formData.isManualRecommend ? '开启' : '关闭'}}</text>
+      </view>
       <view class="editor-actions">
         <button class="light-button" bindtap="closeEditor">取消</button>
         <button class="primary-button" bindtap="submitDishForm">保存</button>

@@ -3,7 +3,7 @@ const { clonePlainData } = require('../utils/formatter')
 const { STORAGE_KEYS } = require('../constants/index')
 const { mockDishes } = require('../mock/dishes')
 const { mockOrders } = require('../mock/orders')
-const { mockUsers, demoUser } = require('../mock/users')
+const { mockUsers } = require('../mock/users')
 
 /**
  * 确保本地 Mock 数据完成初始化。
@@ -19,10 +19,6 @@ function ensureMockSeeds() {
 
   if (!cache.getStorage(STORAGE_KEYS.USERS, null)) {
     cache.setStorage(STORAGE_KEYS.USERS, clonePlainData(mockUsers))
-  }
-
-  if (!cache.getStorage(STORAGE_KEYS.CURRENT_USER, null)) {
-    cache.setStorage(STORAGE_KEYS.CURRENT_USER, clonePlainData(demoUser))
   }
 
   if (!cache.getStorage(STORAGE_KEYS.ORDER_TOKENS, null)) {

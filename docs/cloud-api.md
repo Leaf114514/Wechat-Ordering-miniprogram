@@ -2,8 +2,19 @@
 
 ## loginUser
 
-- 说明：初始化当前微信用户并写入 `users` 集合。
-- 入参：无。
+- 说明：结合微信登录态同步当前微信用户，并写入 `users` 集合。
+- 入参示例：
+
+```json
+{
+  "loginCode": "0812abc",
+  "profile": {
+    "nickname": "暖橙食客",
+    "avatarUrl": "cloud://xxx/avatar.png"
+  }
+}
+```
+
 - 返回示例：
 
 ```json
@@ -12,7 +23,8 @@
   "data": {
     "_id": "user-demo",
     "openId": "o123",
-    "nickname": "微信食客",
+    "nickname": "暖橙食客",
+    "avatarUrl": "cloud://xxx/avatar.png",
     "role": "customer"
   }
 }
@@ -118,7 +130,7 @@
 
 ## manageDish
 
-- 说明：管理员新增、编辑、上下架菜品。
+- 说明：管理员新增、编辑、上下架菜品，以及配置首页自定义推荐。
 - 入参示例：
 
 ```json
@@ -129,7 +141,20 @@
     "category": "暖胃汤面",
     "price": 22,
     "stock": 30,
-    "description": "今日现熬"
+    "description": "今日现熬",
+    "isManualRecommend": true
+  }
+}
+```
+
+- 推荐配置示例：
+
+```json
+{
+  "action": "recommend",
+  "payload": {
+    "dishId": "dish-1001",
+    "isManualRecommend": true
   }
 }
 ```

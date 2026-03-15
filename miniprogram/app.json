@@ -1,9 +1,10 @@
 {
   "pages": [
     "pages/home/index",
+    "pages/order/index",
+    "pages/user/index",
     "pages/orders/index",
-    "pages/admin/index",
-    "pages/profile/index"
+    "pages/admin/index"
   ],
   "window": {
     "backgroundColor": "#F5F5F5",
@@ -11,6 +12,32 @@
     "navigationBarBackgroundColor": "#F5F5F5",
     "navigationBarTitleText": "暖橙点餐",
     "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#FF8C00",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "首页",
+        "iconPath": "images/icons/home.png",
+        "selectedIconPath": "images/icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/order/index",
+        "text": "点餐",
+        "iconPath": "images/icons/goods.png",
+        "selectedIconPath": "images/icons/goods-active.png"
+      },
+      {
+        "pagePath": "pages/user/index",
+        "text": "我的",
+        "iconPath": "images/icons/usercenter.png",
+        "selectedIconPath": "images/icons/usercenter-active.png"
+      }
+    ]
   },
   "style": "v2",
   "lazyCodeLoading": "requiredComponents",

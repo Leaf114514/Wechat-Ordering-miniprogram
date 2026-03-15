@@ -43,6 +43,7 @@ exports.main = async (event) => {
         description: payload.description || '',
         image: payload.image || '/assets/dishes/dish-6.png',
         isAvailable: payload.isAvailable !== false,
+        isManualRecommend: Boolean(payload.isManualRecommend),
         specs: payload.specs || [
           {
             name: '规格',
@@ -98,6 +99,23 @@ exports.main = async (event) => {
         data: {
           _id: payload.dishId,
           isAvailable: payload.isAvailable
+        }
+      }
+    }
+
+    if (action === 'recommend') {
+      await db.collection('dishes').doc(payload.dishId).update({
+        data: {
+          isManualRecommend: Boolean(payload.isManualRecommend),
+          updatedAt: Date.now()
+        }
+      })
+
+      return {
+        code: 0,
+        data: {
+          _id: payload.dishId,
+          isManualRecommend: Boolean(payload.isManualRecommend)
         }
       }
     }

@@ -1,103 +1,83 @@
 <view class="home-page fade-enter">
   <view class="hero card-surface">
-    <view>
+    <view class="hero-main">
       <text class="hero-title">{{restaurantProfile.name}}</text>
       <text class="hero-subtitle">{{restaurantProfile.slogan}}</text>
       <text class="hero-address">{{restaurantProfile.address}}</text>
     </view>
     <view class="hero-actions">
-      <button class="ghost-button" bindtap="handleNavigate"
-        data-url="/pages/orders/index">
-        我的订单
-      </button>
-      <button class="ghost-button" bindtap="handleNavigate"
-        data-url="/pages/profile/index">
-        个人中心
-      </button>
+      <button class="ghost-button" bindtap="openOrdersPage">我的订单</button>
+      <button class="ghost-button" bindtap="goUserTab">个人信息</button>
     </view>
   </view>
 
-  <view class="recommend card-surface">
+  <view class="section card-surface">
     <view class="section-head">
       <view>
-        <text class="section-title">智能推荐</text>
+        <text class="section-title">店长推荐</text>
         <text class="section-subtitle">
-          基于历史订单协同过滤，为你推荐更对味的组合
+          管理员可自定义展示店铺主推菜品
         </text>
       </view>
-      <button class="ghost-link" bindtap="handleNavigate"
-        data-url="/pages/admin/index">
-        管理后台
+      <button wx:if="{{isAdmin}}" class="manage-button"
+        bindtap="openRecommendManager">
+        自定义入口
       </button>
     </view>
-    <view class="recommend-list">
-      <view wx:for="{{recommendList}}" wx:key="_id" class="recommend-item">
-        <image class="recommend-image" src="{{item.image}}" mode="aspectFill" />
-        <view class="recommend-main">
-          <text class="recommend-name">{{item.name}}</text>
-          <text class="recommend-reason">{{item.reason}}</text>
+
+    <view wx:if="{{manualRecommendList.length}}" class="hero-list">
+      <view wx:for="{{manualRecommendList}}" wx:key="_id" class="hero-card">
+        <image class="hero-image" src="{{item.image}}" mode="aspectFill" />
+        <view class="hero-card-main">
+          <text class="hero-card-title">{{item.name}}</text>
+          <text class="hero-card-desc">{{item.description}}</text>
+          <view class="hero-card-foot">
+            <text class="hero-card-price">¥{{item.priceText}}</text>
+            <button class="hero-card-button" bindtap="goOrderTab">
+              去点餐
+            </button>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:else class="empty-card">
+      <text class="empty-title">暂未设置自定义推荐</text>
+      <text class="empty-subtitle">
+        管理员可在首页入口或后台中配置展示菜品
+      </text>
+    </view>
+  </view>
+
+  <view class="section card-surface">
+    <view class="section-head">
+      <view>
+        <text class="section-title">销量热榜 TOP 8</text>
+        <text class="section-subtitle">
+          系统根据销量自动推荐本店最受欢迎的食品
+        </text>
+      </view>
+      <button class="manage-button light" bindtap="goOrderTab">去点餐</button>
+    </view>
+
+    <view class="sales-grid">
+      <view wx:for="{{topSalesList}}" wx:key="_id" class="sales-card">
+        <image class="sales-image" src="{{item.image}}" mode="aspectFill" />
+        <view class="sales-rank">TOP {{index + 1}}</view>
+        <text class="sales-name">{{item.name}}</text>
+        <view class="sales-meta">
+          <text class="sales-price">¥{{item.priceText}}</text>
+          <text class="sales-count">月售 {{item.sales}}</text>
         </view>
       </view>
     </view>
   </view>
 
-  <scroll-view scroll-x class="category-scroll" show-scrollbar="false">
-    <view class="category-list">
-      <view
-        wx:for="{{categories}}"
-        wx:key="*this"
-        class="category-chip {{activeCategory === item ? 'is-active' : ''}}"
-        bindtap="handleCategoryTap"
-        data-category="{{item}}"
-      >
-        {{item}}
-      </view>
+  <view class="action-banner card-surface">
+    <view>
+      <text class="action-title">准备好开始点餐了吗？</text>
+      <text class="action-subtitle">所有点餐相关功能已统一迁移到点餐页</text>
     </view>
-  </scroll-view>
-
-  <view class="remark-box card-surface">
-    <text class="remark-label">订单备注</text>
-    <input
-      class="remark-input"
-      placeholder="如：少冰、不要香菜、打包"
-      value="{{remark}}"
-      bindinput="handleRemarkInput"
-    />
+    <button class="primary-button" bindtap="goOrderTab">进入点餐页</button>
   </view>
-
-  <view class="waterfall">
-    <view class="waterfall-column">
-      <dish-card
-        wx:for="{{leftColumn}}"
-        wx:key="_id"
-        dish="{{item}}"
-        bind:select="handleDishSelect"
-        bind:add="handleAddDish"
-      />
-    </view>
-    <view class="waterfall-column">
-      <dish-card
-        wx:for="{{rightColumn}}"
-        wx:key="_id"
-        dish="{{item}}"
-        bind:select="handleDishSelect"
-        bind:add="handleAddDish"
-      />
-    </view>
-  </view>
-
-  <view wx:if="{{!hasMore}}" class="load-tip">已经到底啦，换个分类试试</view>
-
-  <cart-panel
-    items="{{cartItems}}"
-    summary="{{cartSummary}}"
-    bind:change="handleCartChange"
-    bind:checkout="handleCheckout"
-  />
-  <spec-popup
-    visible="{{specPopupVisible}}"
-    dish="{{activeDish}}"
-    bind:close="handleSpecClose"
-    bind:confirm="handleSpecConfirm"
-  />
 </view>

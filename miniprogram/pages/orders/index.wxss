@@ -3,11 +3,17 @@
   padding: 28rpx 24rpx 48rpx;
 }
 
+.orders-head,
+.empty,
+.order-card {
+  margin-top: 24rpx;
+  padding: 28rpx;
+}
+
 .orders-head {
   display: flex;
   justify-content: space-between;
   gap: 20rpx;
-  padding: 28rpx;
 }
 
 .ghost-button {
@@ -41,12 +47,6 @@
 .filter-chip.is-active {
   background: linear-gradient(135deg, #ffa500, #ff8c00);
   color: #fff;
-}
-
-.empty,
-.order-card {
-  margin-top: 24rpx;
-  padding: 28rpx;
 }
 
 .empty-title {

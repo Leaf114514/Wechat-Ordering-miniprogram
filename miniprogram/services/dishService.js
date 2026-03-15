@@ -11,6 +11,7 @@ const mockStore = require('./mockStore')
  */
 function normalizeDish(dish) {
   return Object.assign({}, dish, {
+    isManualRecommend: Boolean(dish.isManualRecommend),
     priceText: formatCurrency(dish.price),
     originPriceText: dish.originPrice
       ? formatCurrency(dish.originPrice)
@@ -63,26 +64,21 @@ async function getCategoryList() {
 }
 
 /**
- * 获取菜品列表。
+ * 获取指定分类菜品。
  * @param {string} category - 分类名称。
  * @returns {Promise<Array>} 菜品数组。
  */
 async function getDishesByCategory(category) {
-  try {
-    const dishes = await getAllDishes(false)
-    if (!category || category === '全部') {
-      return dishes
-    }
-
-    return dishes.filter((item) => item.category === category)
-  } catch (err) {
-    console.error('[菜品获取失败]', err)
-    throw err
+  const dishes = await getAllDishes(false)
+  if (!category || category === '全部') {
+    return dishes
   }
+
+  return dishes.filter((item) => item.category === category)
 }
 
 /**
- * 获取首页瀑布流数据。
+ * 获取点餐页瀑布流数据。
  * @param {Object} params - 查询参数。
  * @param {string} params.category - 分类名称。
  * @param {number} params.pageNo - 页码。
@@ -105,6 +101,35 @@ async function getHomeFeed(params) {
 }
 
 /**
+ * 获取管理员自定义推荐菜品。
+ * @param {number} limit - 返回数量。
+ * @returns {Promise<Array>} 推荐菜品。
+ */
+async function getManualRecommendDishes(limit) {
+  const dishes = await getAllDishes(false)
+  return dishes
+    .filter((item) => item.isManualRecommend)
+    .sort((left, right) => {
+      return (right.updatedAt || 0) - (left.updatedAt || 0) ||
+        right.sales - left.sales
+    })
+    .slice(0, limit || 4)
+}
+
+/**
+ * 获取销量前 N 的菜品。
+ * @param {number} limit - 返回数量。
+ * @returns {Promise<Array>} 热销菜品。
+ */
+async function getTopSalesDishes(limit) {
+  const dishes = await getAllDishes(false)
+  return dishes
+    .slice()
+    .sort((left, right) => right.sales - left.sales)
+    .slice(0, limit || 8)
+}
+
+/**
  * 根据 ID 获取菜品详情。
  * @param {string} dishId - 菜品 ID。
  * @returns {Promise<Object|null>} 菜品对象。
@@ -119,5 +144,7 @@ module.exports = {
   getCategoryList,
   getDishesByCategory,
   getHomeFeed,
+  getManualRecommendDishes,
+  getTopSalesDishes,
   getDishById
 }

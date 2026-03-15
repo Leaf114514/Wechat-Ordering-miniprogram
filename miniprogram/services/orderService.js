@@ -41,6 +41,10 @@ async function getOrders(params) {
   const role = options.role || USER_ROLE.CUSTOMER
   const userId = options.userId
 
+  if (role !== USER_ROLE.ADMIN && !userId) {
+    return []
+  }
+
   if (cloudService.shouldUseMock()) {
     let orders = mockStore.getMockOrders()
     if (role !== USER_ROLE.ADMIN) {
@@ -89,6 +93,10 @@ async function placeMockOrder(payload) {
   const orders = mockStore.getMockOrders()
   const orderTokens = cache.getStorage(STORAGE_KEYS.ORDER_TOKENS, {})
   const token = payload.idempotencyToken
+
+  if (!user) {
+    throw new Error('请先登录后再下单')
+  }
 
   if (orderTokens[token]) {
     const existed = orders.find((item) => item._id === orderTokens[token])
@@ -151,9 +159,13 @@ async function placeMockOrder(payload) {
  */
 async function placeOrder(payload) {
   const currentUser = userService.getCachedUser()
+  if (!currentUser) {
+    throw new Error('请先登录后再下单')
+  }
+
   const idempotencyToken = payload.idempotencyToken ||
-    createIdempotencyToken(currentUser && currentUser._id)
-  const guardKey = `place-order-${currentUser && currentUser._id}`
+    createIdempotencyToken(currentUser._id)
+  const guardKey = `place-order-${currentUser._id}`
 
   if (!submitGuard.canRun(guardKey)) {
     throw new Error('请勿重复提交订单')
@@ -197,6 +209,10 @@ function updateMockOrderStatus(orderId, nextStatus) {
   const dishes = mockStore.getMockDishes()
   const order = orders.find((item) => item._id === orderId)
 
+  if (!currentUser) {
+    throw new Error('请先登录后再操作订单')
+  }
+
   if (!order) {
     throw new Error('订单不存在')
   }
@@ -238,6 +254,9 @@ function updateMockOrderStatus(orderId, nextStatus) {
  */
 async function updateOrderStatus(payload) {
   const currentUser = userService.getCachedUser()
+  if (!currentUser) {
+    throw new Error('请先登录后再操作订单')
+  }
 
   if (cloudService.shouldUseMock()) {
     return updateMockOrderStatus(payload.orderId, payload.nextStatus)
@@ -263,6 +282,18 @@ async function updateOrderStatus(payload) {
  * @returns {Promise<Object>} 统计结果。
  */
 async function getOrderMetrics(userId) {
+  if (!userId) {
+    return {
+      totalOrders: 0,
+      totalAmount: 0,
+      pending_payment: 0,
+      preparing: 0,
+      completed: 0,
+      cancelled: 0,
+      totalAmountText: '0.00'
+    }
+  }
+
   const orders = await getOrders({ userId, role: USER_ROLE.CUSTOMER })
   const metrics = orders.reduce(
     (accumulator, order) => {

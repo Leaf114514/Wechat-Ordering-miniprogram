@@ -1,0 +1,81 @@
+<view class="order-page fade-enter">
+  <view class="store-banner card-surface">
+    <view class="store-main">
+      <text class="store-title">{{restaurantProfile.name}}</text>
+      <text class="store-subtitle">点餐相关模块已统一迁移到本页</text>
+      <text class="store-status">
+        {{isLoggedIn ? '当前已登录，可直接下单' : '当前未登录，可先浏览菜单'}}
+      </text>
+    </view>
+    <view class="store-actions">
+      <button class="ghost-button" bindtap="openOrdersPage">我的订单</button>
+      <button class="ghost-button" bindtap="goUserTab">个人信息</button>
+    </view>
+  </view>
+
+  <view wx:if="{{!isLoggedIn}}" class="login-tip card-surface">
+    <text class="login-tip-title">未登录状态下可浏览菜品</text>
+    <text class="login-tip-text">下单前请先前往“我的”页面完成微信登录</text>
+    <button class="primary-button" bindtap="goUserTab">去登录</button>
+  </view>
+
+  <scroll-view scroll-x class="category-scroll" show-scrollbar="false">
+    <view class="category-list">
+      <view
+        wx:for="{{categories}}"
+        wx:key="*this"
+        class="category-chip {{activeCategory === item ? 'is-active' : ''}}"
+        bindtap="handleCategoryTap"
+        data-category="{{item}}"
+      >
+        {{item}}
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="remark-box card-surface">
+    <text class="remark-label">订单备注</text>
+    <input
+      class="remark-input"
+      placeholder="如：少冰、不要香菜、打包"
+      value="{{remark}}"
+      bindinput="handleRemarkInput"
+    />
+  </view>
+
+  <view class="waterfall">
+    <view class="waterfall-column">
+      <dish-card
+        wx:for="{{leftColumn}}"
+        wx:key="_id"
+        dish="{{item}}"
+        bind:select="handleDishSelect"
+        bind:add="handleAddDish"
+      />
+    </view>
+    <view class="waterfall-column">
+      <dish-card
+        wx:for="{{rightColumn}}"
+        wx:key="_id"
+        dish="{{item}}"
+        bind:select="handleDishSelect"
+        bind:add="handleAddDish"
+      />
+    </view>
+  </view>
+
+  <view wx:if="{{!hasMore}}" class="load-tip">已经到底啦，换个分类试试</view>
+
+  <cart-panel
+    items="{{cartItems}}"
+    summary="{{cartSummary}}"
+    bind:change="handleCartChange"
+    bind:checkout="handleCheckout"
+  />
+  <spec-popup
+    visible="{{specPopupVisible}}"
+    dish="{{activeDish}}"
+    bind:close="handleSpecClose"
+    bind:confirm="handleSpecConfirm"
+  />
+</view>

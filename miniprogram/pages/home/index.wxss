@@ -1,20 +1,30 @@
 .home-page {
   min-height: 100vh;
-  padding: 28rpx 24rpx 240rpx;
+  padding: 28rpx 24rpx 40rpx;
+}
+
+.hero,
+.section,
+.action-banner {
+  margin-bottom: 24rpx;
+  padding: 30rpx;
 }
 
 .hero {
   display: flex;
   justify-content: space-between;
   gap: 24rpx;
-  padding: 32rpx;
   background:
-    linear-gradient(135deg, rgba(255, 165, 0, 0.18), rgba(255, 255, 255, 0.96));
+    linear-gradient(135deg, rgba(255, 165, 0, 0.16), rgba(255, 255, 255, 0.94));
+}
+
+.hero-main {
+  flex: 1;
 }
 
 .hero-title {
   display: block;
-  font-size: 40rpx;
+  font-size: 42rpx;
   font-weight: 700;
 }
 
@@ -29,122 +39,172 @@
 .hero-actions {
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 14rpx;
 }
 
 .ghost-button,
-.ghost-link {
+.manage-button,
+.hero-card-button,
+.primary-button {
   padding: 18rpx 24rpx;
   border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.7);
-  color: #ff8c00;
   font-size: 24rpx;
   font-weight: 600;
 }
 
-.recommend,
-.remark-box {
-  margin-top: 24rpx;
-  padding: 28rpx;
+.ghost-button,
+.manage-button.light {
+  background: #fff7ea;
+  color: #ff8c00;
+}
+
+.manage-button,
+.hero-card-button,
+.primary-button {
+  background: linear-gradient(135deg, #ffa500, #ff8c00);
+  color: #fff;
 }
 
 .section-head {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 20rpx;
+  gap: 24rpx;
 }
 
-.recommend-list {
+.hero-list {
   display: flex;
   flex-direction: column;
   gap: 18rpx;
   margin-top: 24rpx;
 }
 
-.recommend-item {
+.hero-card {
   display: flex;
-  align-items: center;
   gap: 18rpx;
   padding: 18rpx;
-  border-radius: 22rpx;
+  border-radius: 24rpx;
   background: #fff9f2;
 }
 
-.recommend-image {
-  width: 96rpx;
-  height: 96rpx;
-  border-radius: 18rpx;
+.hero-image {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 20rpx;
 }
 
-.recommend-main {
+.hero-card-main {
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.recommend-name {
-  display: block;
-  font-size: 28rpx;
-  font-weight: 600;
+.hero-card-title {
+  font-size: 30rpx;
+  font-weight: 700;
 }
 
-.recommend-reason {
-  display: block;
-  margin-top: 8rpx;
+.hero-card-desc {
+  margin-top: 12rpx;
   color: var(--color-subtext);
   font-size: 22rpx;
+  line-height: 1.6;
 }
 
-.category-scroll {
-  margin-top: 24rpx;
-  white-space: nowrap;
-}
-
-.category-list {
-  display: inline-flex;
-  gap: 16rpx;
-}
-
-.category-chip {
-  padding: 18rpx 28rpx;
-  border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.8);
-  color: #666;
-  font-size: 24rpx;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.04);
-}
-
-.category-chip.is-active {
-  background: linear-gradient(135deg, #ffa500, #ff8c00);
-  color: #fff;
-}
-
-.remark-label {
-  display: block;
-  font-size: 26rpx;
-  font-weight: 600;
-}
-
-.remark-input {
-  height: 84rpx;
-  margin-top: 18rpx;
-  padding: 0 22rpx;
-  border-radius: 22rpx;
-  background: #fff8ef;
-  font-size: 24rpx;
-}
-
-.waterfall {
+.hero-card-foot {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-top: auto;
+}
+
+.hero-card-price,
+.sales-price {
+  color: #ff4d4f;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.empty-card {
+  margin-top: 24rpx;
+  padding: 26rpx;
+  border-radius: 24rpx;
+  background: #fff9f2;
+}
+
+.empty-title,
+.action-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.empty-subtitle,
+.action-subtitle {
+  display: block;
+  margin-top: 12rpx;
+  color: var(--color-subtext);
+  font-size: 24rpx;
+  line-height: 1.6;
+}
+
+.sales-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18rpx;
   margin-top: 24rpx;
 }
 
-.waterfall-column {
-  flex: 1;
+.sales-card {
+  position: relative;
+  padding: 18rpx;
+  border-radius: 24rpx;
+  background: #fff9f2;
 }
 
-.load-tip {
-  padding: 16rpx 0 32rpx;
+.sales-image {
+  width: 100%;
+  height: 220rpx;
+  border-radius: 18rpx;
+}
+
+.sales-rank {
+  position: absolute;
+  left: 30rpx;
+  top: 30rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 140, 0, 0.9);
+  color: #fff;
+  font-size: 20rpx;
+}
+
+.sales-name {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.sales-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-top: 12rpx;
+}
+
+.sales-count {
   color: var(--color-subtext);
-  text-align: center;
   font-size: 22rpx;
+}
+
+.action-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  margin-bottom: 0;
 }

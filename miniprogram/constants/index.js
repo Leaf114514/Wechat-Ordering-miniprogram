@@ -41,11 +41,14 @@ const CATEGORY_LIST = [
   '甜品饮品'
 ]
 
+const DEFAULT_AVATAR_URL = '/images/icons/avatar.png'
+
 module.exports = {
   STORAGE_KEYS,
   USER_ROLE,
   ORDER_STATUS,
   ORDER_STATUS_TEXT,
   ORDER_FLOW,
-  CATEGORY_LIST
+  CATEGORY_LIST,
+  DEFAULT_AVATAR_URL
 }

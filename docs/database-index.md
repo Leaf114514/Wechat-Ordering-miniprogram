@@ -14,13 +14,14 @@
 - `sales`：销量
 - `image`：图片路径或云存储 fileID
 - `isAvailable`：是否上架
+- `isManualRecommend`：是否加入首页店长推荐
 - `specs`：规格数组
 - `createdAt` / `updatedAt`
 
 推荐索引：
 
-1. `category + isAvailable + sales` 复合索引，用于首页分类检索与热销排序
-2. `isAvailable + updatedAt` 复合索引，用于后台上下架列表
+1. `category + isAvailable + sales` 复合索引，用于点餐页分类检索与热销排序
+2. `isManualRecommend + isAvailable + updatedAt` 复合索引，用于首页店长推荐模块
 3. `sales` 单字段索引，用于热销榜与推荐降级策略
 
 ### orders
@@ -68,3 +69,4 @@
 - 下单与取消订单务必走云函数事务，避免库存与订单状态不一致。
 - 建议在 `orders.dedupToken` 上启用唯一索引，配合客户端防重守卫双层兜底。
 - 管理员写操作全部经云函数执行，并在服务端二次校验 `role=admin`。
+- 用户信息同步建议通过 `wx.login` + 云函数 `wxContext.OPENID` 组合完成，不在前端持久化敏感凭证。

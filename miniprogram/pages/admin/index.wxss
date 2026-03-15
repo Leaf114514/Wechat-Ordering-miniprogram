@@ -5,6 +5,7 @@
 
 .admin-head,
 .auth-card,
+.summary-card,
 .admin-card,
 .top-list,
 .stat-card {
@@ -43,13 +44,15 @@
   color: #ff5c3c;
 }
 
-.auth-title {
+.auth-title,
+.summary-title {
   display: block;
   font-size: 32rpx;
   font-weight: 600;
 }
 
 .auth-desc,
+.summary-desc,
 .admin-dish-desc,
 .order-user {
   display: block;
@@ -63,6 +66,8 @@
   display: flex;
   gap: 16rpx;
   margin-top: 24rpx;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 .tab-chip {
@@ -199,7 +204,8 @@
 
 .editor-input,
 .editor-picker,
-.editor-textarea {
+.editor-textarea,
+.editor-switch {
   width: 100%;
   margin-top: 18rpx;
   padding: 22rpx;
@@ -210,6 +216,11 @@
 
 .editor-textarea {
   min-height: 160rpx;
+}
+
+.editor-switch {
+  display: flex;
+  justify-content: space-between;
 }
 
 .editor-actions {

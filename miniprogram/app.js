@@ -61,10 +61,15 @@ App({
 
   /**
    * 更新当前用户并持久化。
-   * @param {Object} user - 用户对象。
+   * @param {Object|null} user - 用户对象。
    */
   setCurrentUser(user) {
-    this.globalData.currentUser = user
-    cache.setStorage(STORAGE_KEYS.CURRENT_USER, user)
+    this.globalData.currentUser = user || null
+    if (user) {
+      cache.setStorage(STORAGE_KEYS.CURRENT_USER, user)
+      return
+    }
+
+    cache.removeStorage(STORAGE_KEYS.CURRENT_USER)
   }
 })

@@ -13,31 +13,42 @@ Page({
     ],
     activeStatus: 'all',
     orderList: [],
-    currentUser: null
+    currentUser: null,
+    hasLogin: false
   },
 
   /**
    * 页面加载。
    */
   async onLoad() {
-    await this.initializePage()
+    await this.syncPageData()
   },
 
   /**
    * 页面展示时刷新数据。
    */
   async onShow() {
-    if (this.data.currentUser) {
-      await this.loadOrders()
-    }
+    await this.syncPageData()
   },
 
   /**
-   * 初始化订单页。
+   * 同步页面数据。
    */
-  async initializePage() {
-    const currentUser = await userService.ensureCurrentUser()
-    this.setData({ currentUser })
+  async syncPageData() {
+    const currentUser = userService.getCachedUser()
+    if (!currentUser) {
+      this.setData({
+        currentUser: null,
+        hasLogin: false,
+        orderList: []
+      })
+      return
+    }
+
+    this.setData({
+      currentUser,
+      hasLogin: true
+    })
     await this.loadOrders()
   },
 
@@ -69,7 +80,9 @@ Page({
     this.setData({
       activeStatus: event.currentTarget.dataset.status
     })
-    await this.loadOrders()
+    if (this.data.hasLogin) {
+      await this.loadOrders()
+    }
   },
 
   /**
@@ -81,7 +94,7 @@ Page({
     const action = event.currentTarget.dataset.action
 
     if (action === 'again') {
-      wx.navigateTo({ url: '/pages/home/index' })
+      wx.switchTab({ url: '/pages/order/index' })
       return
     }
 
@@ -107,12 +120,16 @@ Page({
   },
 
   /**
-   * 页面跳转。
-   * @param {Object} event - 事件对象。
+   * 去登录页面。
    */
-  handleNavigate(event) {
-    wx.navigateTo({
-      url: event.currentTarget.dataset.url
-    })
+  goUserTab() {
+    wx.switchTab({ url: '/pages/user/index' })
+  },
+
+  /**
+   * 返回点餐页。
+   */
+  goOrderTab() {
+    wx.switchTab({ url: '/pages/order/index' })
   }
 })

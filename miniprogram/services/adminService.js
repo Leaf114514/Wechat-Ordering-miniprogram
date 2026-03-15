@@ -71,6 +71,7 @@ async function saveDish(payload) {
       description: payload.description,
       image: payload.image || existing.image,
       isAvailable: payload.isAvailable !== false,
+      isManualRecommend: Boolean(payload.isManualRecommend),
       updatedAt: now
     })
     mockStore.saveMockDishes(dishes)
@@ -90,13 +91,12 @@ async function saveDish(payload) {
     description: payload.description,
     tags: ['新品'],
     isAvailable: true,
+    isManualRecommend: Boolean(payload.isManualRecommend),
     specs: payload.specs || [
       {
         name: '规格',
         required: true,
-        options: [
-          { label: '标准', delta: 0 }
-        ]
+        options: [{ label: '标准', delta: 0 }]
       }
     ],
     createdAt: now,
@@ -143,8 +143,44 @@ async function toggleDishStatus(dishId, isAvailable) {
   return target
 }
 
+/**
+ * 设置首页自定义推荐菜品。
+ * @param {string} dishId - 菜品 ID。
+ * @param {boolean} isManualRecommend - 是否推荐。
+ * @returns {Promise<Object>} 更新后的菜品。
+ */
+async function setManualRecommend(dishId, isManualRecommend) {
+  if (!cloudService.shouldUseMock()) {
+    const result = await cloudService.callCloudFunction('manageDish', {
+      action: 'recommend',
+      payload: {
+        dishId,
+        isManualRecommend
+      }
+    })
+
+    if (result.result.code !== 0) {
+      throw new Error(result.result.message || '推荐配置更新失败')
+    }
+
+    return result.result.data
+  }
+
+  const dishes = mockStore.getMockDishes()
+  const target = dishes.find((item) => item._id === dishId)
+  if (!target) {
+    throw new Error('菜品不存在')
+  }
+
+  target.isManualRecommend = isManualRecommend
+  target.updatedAt = Date.now()
+  mockStore.saveMockDishes(dishes)
+  return target
+}
+
 module.exports = {
   getDashboard,
   saveDish,
-  toggleDishStatus
+  toggleDishStatus,
+  setManualRecommend
 }
