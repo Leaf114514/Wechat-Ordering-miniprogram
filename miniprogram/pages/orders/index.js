@@ -1,6 +1,7 @@
 const orderService = require('../../services/orderService')
 const userService = require('../../services/userService')
 const { USER_ROLE } = require('../../constants/index')
+const { feedback, navigation } = require('../../utils/wechat')
 
 Page({
   data: {
@@ -18,21 +19,21 @@ Page({
   },
 
   /**
-   * 页面加载。
+   * 页面初次加载时同步订单数据。
    */
   async onLoad() {
     await this.syncPageData()
   },
 
   /**
-   * 页面展示时刷新数据。
+   * 页面显示时重新拉取最新订单。
    */
   async onShow() {
     await this.syncPageData()
   },
 
   /**
-   * 同步页面数据。
+   * 同步页面登录状态和订单列表。
    */
   async syncPageData() {
     const currentUser = userService.getCachedUser()
@@ -53,7 +54,7 @@ Page({
   },
 
   /**
-   * 获取订单列表。
+   * 按当前筛选条件获取订单列表。
    */
   async loadOrders() {
     try {
@@ -63,73 +64,65 @@ Page({
         userId: this.data.currentUser._id,
         role
       })
+
       this.setData({ orderList })
     } catch (error) {
-      wx.showToast({
-        title: error.message || '订单读取失败',
-        icon: 'none'
-      })
+      feedback.showError(error.message || '订单读取失败')
     }
   },
 
   /**
-   * 切换订单筛选。
-   * @param {Object} event - 事件对象。
+   * 切换订单筛选条件。
+   * @param {Object} event - 点击事件对象。
    */
   async handleFilterTap(event) {
     this.setData({
       activeStatus: event.currentTarget.dataset.status
     })
+
     if (this.data.hasLogin) {
       await this.loadOrders()
     }
   },
 
   /**
-   * 处理订单动作。
-   * @param {Object} event - 事件对象。
+   * 处理订单动作，例如再次下单、取消订单、确认完成等。
+   * @param {Object} event - 订单操作事件对象。
    */
   async handleOrderAction(event) {
     const orderId = event.currentTarget.dataset.orderId
     const action = event.currentTarget.dataset.action
 
     if (action === 'again') {
-      wx.switchTab({ url: '/pages/order/index' })
+      navigation.switchTab('/pages/order/index')
       return
     }
 
-    wx.showLoading({ title: '正在处理' })
     try {
-      await orderService.updateOrderStatus({
-        orderId,
-        nextStatus: action
+      await feedback.withLoading('正在处理', () => {
+        return orderService.updateOrderStatus({
+          orderId,
+          nextStatus: action
+        })
       })
-      wx.hideLoading()
-      wx.showToast({
-        title: '订单状态已更新',
-        icon: 'success'
-      })
+      feedback.showSuccess('订单状态已更新')
       await this.loadOrders()
     } catch (error) {
-      wx.hideLoading()
-      wx.showToast({
-        title: error.message || '状态更新失败',
-        icon: 'none'
-      })
+      feedback.showError(error.message || '状态更新失败')
     }
   },
 
   /**
-   * 去登录页面。
+   * 跳转到个人中心 tab。
    */
   goUserTab() {
-    wx.switchTab({ url: '/pages/user/index' })
+    navigation.switchTab('/pages/user/index')
   },
 
   /**
-   * 返回点餐页。
+   * 返回点餐 tab。
    */
   goOrderTab() {
-    wx.switchTab({ url: '/pages/order/index' })
+    navigation.switchTab('/pages/order/index')
   }
 })

@@ -1,6 +1,7 @@
 const config = require('../../config/index')
 const dishService = require('../../services/dishService')
 const userService = require('../../services/userService')
+const { feedback, navigation, page: pageActions } = require('../../utils/wechat')
 
 Page({
   data: {
@@ -12,29 +13,28 @@ Page({
   },
 
   /**
-   * 页面加载。
+   * 页面初次加载时拉取首页数据。
    */
   async onLoad() {
     await this.loadPageData()
   },
 
   /**
-   * 页面展示时刷新数据。
+   * 页面重新展示时同步最新首页数据。
    */
   async onShow() {
     await this.loadPageData()
   },
 
   /**
-   * 下拉刷新首页。
+   * 处理首页下拉刷新，并在结束后统一关闭刷新动画。
    */
   async onPullDownRefresh() {
-    await this.loadPageData()
-    wx.stopPullDownRefresh()
+    await pageActions.withPullDownRefresh(() => this.loadPageData())
   },
 
   /**
-   * 加载首页数据。
+   * 加载首页展示所需的用户、推荐和热销数据。
    */
   async loadPageData() {
     try {
@@ -51,50 +51,42 @@ Page({
         topSalesList
       })
     } catch (error) {
-      wx.showToast({
-        title: error.message || '首页数据加载失败',
-        icon: 'none'
-      })
+      feedback.showError(error.message || '首页数据加载失败')
     }
   },
 
   /**
-   * 跳转到点餐页。
+   * 跳转到点餐 tab。
    */
   goOrderTab() {
-    wx.switchTab({ url: '/pages/order/index' })
+    navigation.switchTab('/pages/order/index')
   },
 
   /**
-   * 跳转到用户页。
+   * 跳转到个人中心 tab。
    */
   goUserTab() {
-    wx.switchTab({ url: '/pages/user/index' })
+    navigation.switchTab('/pages/user/index')
   },
 
   /**
-   * 打开订单列表。
+   * 打开订单列表，未登录时先引导到个人中心。
    */
   openOrdersPage() {
     const currentUser = userService.getCachedUser()
     if (!currentUser) {
-      wx.showToast({
-        title: '请先登录后查看订单',
-        icon: 'none'
-      })
-      setTimeout(() => {
-        wx.switchTab({ url: '/pages/user/index' })
-      }, 400)
+      feedback.showError('请先登录后查看订单')
+      navigation.switchTabLater('/pages/user/index', 400)
       return
     }
 
-    wx.navigateTo({ url: '/pages/orders/index' })
+    navigation.navigateTo('/pages/orders/index')
   },
 
   /**
-   * 打开管理员推荐配置页。
+   * 打开后台推荐管理页。
    */
   openRecommendManager() {
-    wx.navigateTo({ url: '/pages/admin/index?tab=recommend' })
+    navigation.navigateTo('/pages/admin/index?tab=recommend')
   }
 })

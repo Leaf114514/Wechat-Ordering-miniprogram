@@ -1,46 +1,11 @@
-/**
- * 从本地缓存中读取数据。
- * @param {string} key - 缓存键名。
- * @param {*} fallback - 默认值。
- * @returns {*} 缓存值。
- */
-function getStorage(key, fallback) {
-  try {
-    const value = wx.getStorageSync(key)
-    return value === '' || typeof value === 'undefined' ? fallback : value
-  } catch (error) {
-    console.error('[缓存读取失败]', key, error)
-    return fallback
-  }
-}
+const { storage } = require('./wechat')
 
 /**
- * 向本地缓存写入数据。
- * @param {string} key - 缓存键名。
- * @param {*} value - 待写入数据。
+ * 向后兼容的缓存工具出口。
+ * 业务层继续依赖 cache.js，不需要感知底层微信实现的拆分方式。
  */
-function setStorage(key, value) {
-  try {
-    wx.setStorageSync(key, value)
-  } catch (error) {
-    console.error('[缓存写入失败]', key, error)
-  }
-}
-
-/**
- * 删除本地缓存数据。
- * @param {string} key - 缓存键名。
- */
-function removeStorage(key) {
-  try {
-    wx.removeStorageSync(key)
-  } catch (error) {
-    console.error('[缓存移除失败]', key, error)
-  }
-}
-
 module.exports = {
-  getStorage,
-  setStorage,
-  removeStorage
+  getStorage: storage.getStorage,
+  setStorage: storage.setStorage,
+  removeStorage: storage.removeStorage
 }
