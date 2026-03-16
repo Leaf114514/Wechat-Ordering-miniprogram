@@ -5,7 +5,8 @@
 
 .store-banner,
 .login-tip,
-.remark-box {
+.remark-box,
+.state-card {
   margin-bottom: 24rpx;
   padding: 30rpx;
 }
@@ -15,6 +16,7 @@
   justify-content: space-between;
   gap: 24rpx;
   background:
+    radial-gradient(circle at top left, rgba(255, 181, 74, 0.2), transparent 38%),
     linear-gradient(135deg, rgba(255, 165, 0, 0.16), rgba(255, 255, 255, 0.94));
 }
 
@@ -30,11 +32,28 @@
 
 .store-subtitle,
 .store-status,
-.login-tip-text {
+.login-tip-text,
+.state-subtitle {
   display: block;
   margin-top: 12rpx;
   color: var(--color-subtext);
   font-size: 24rpx;
+  line-height: 1.6;
+}
+
+.store-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 18rpx;
+}
+
+.store-meta-item {
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.72);
+  color: #d9720c;
+  font-size: 20rpx;
 }
 
 .store-actions {
@@ -63,13 +82,15 @@
 }
 
 .login-tip-title,
-.remark-label {
+.remark-label,
+.state-title {
   display: block;
   font-size: 28rpx;
   font-weight: 600;
 }
 
 .category-scroll {
+  margin-bottom: 20rpx;
   white-space: nowrap;
 }
 

@@ -54,7 +54,8 @@
 .auth-desc,
 .summary-desc,
 .admin-dish-desc,
-.order-user {
+.order-user,
+.order-total {
   display: block;
   margin-top: 12rpx;
   color: var(--color-subtext);
@@ -115,8 +116,7 @@
   flex: 1;
 }
 
-.admin-dish-meta,
-.order-total {
+.admin-dish-meta {
   display: block;
   margin-top: 10rpx;
   color: var(--color-subtext);
@@ -216,6 +216,19 @@
 
 .editor-textarea {
   min-height: 160rpx;
+}
+
+.editor-image-box {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  margin-top: 18rpx;
+}
+
+.editor-image {
+  width: 108rpx;
+  height: 108rpx;
+  border-radius: 20rpx;
 }
 
 .editor-switch {

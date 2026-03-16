@@ -4,24 +4,62 @@
       <text class="hero-title">{{restaurantProfile.name}}</text>
       <text class="hero-subtitle">{{restaurantProfile.slogan}}</text>
       <text class="hero-address">{{restaurantProfile.address}}</text>
+      <view class="hero-tags">
+        <text wx:for="{{restaurantProfile.serviceTags}}" wx:key="*this" class="hero-tag">
+          {{item}}
+        </text>
+      </view>
+      <view class="hero-metrics">
+        <view class="metric-pill">
+          <text class="metric-label">营业时间</text>
+          <text class="metric-value">{{restaurantProfile.businessHours}}</text>
+        </view>
+        <view class="metric-pill">
+          <text class="metric-label">出餐效率</text>
+          <text class="metric-value">{{restaurantProfile.pickupTimeText}}</text>
+        </view>
+        <view class="metric-pill">
+          <text class="metric-label">客单水平</text>
+          <text class="metric-value">{{restaurantProfile.perCapitaText}}</text>
+        </view>
+      </view>
     </view>
     <view class="hero-actions">
+      <button class="primary-button" bindtap="goOrderTab">立即点餐</button>
       <button class="ghost-button" bindtap="openOrdersPage">我的订单</button>
-      <button class="ghost-button" bindtap="goUserTab">个人信息</button>
+      <button class="ghost-button" bindtap="openStoreLocation">门店导航</button>
     </view>
+  </view>
+
+  <view wx:if="{{currentUser}}" class="welcome-card card-surface">
+    <view>
+      <text class="section-title">欢迎回来，{{currentUser.nickname}}</text>
+      <text class="section-subtitle">
+        {{isAdmin ? '你当前拥有管理员权限，可直接前往后台维护菜单与订单。' : '今日热销与个性推荐已经为你准备好，开始选餐吧。'}}
+      </text>
+    </view>
+    <button class="ghost-button" bindtap="goUserTab">查看个人中心</button>
+  </view>
+
+  <view wx:if="{{errorMessage}}" class="state-card card-surface">
+    <text class="state-title">首页加载失败</text>
+    <text class="state-subtitle">{{errorMessage}}</text>
+    <button class="primary-button" bindtap="loadPageData">重新加载</button>
+  </view>
+
+  <view wx:if="{{loading && !manualRecommendList.length && !topSalesList.length}}" class="state-card card-surface">
+    <text class="state-title">正在准备今日菜单</text>
+    <text class="state-subtitle">推荐菜品与热销榜单加载中，请稍候。</text>
   </view>
 
   <view class="section card-surface">
     <view class="section-head">
       <view>
         <text class="section-title">店长推荐</text>
-        <text class="section-subtitle">
-          管理员可自定义展示店铺主推菜品
-        </text>
+        <text class="section-subtitle">展示管理员精挑细选的重点菜品，适合第一次来到这里的用户。</text>
       </view>
-      <button wx:if="{{isAdmin}}" class="manage-button"
-        bindtap="openRecommendManager">
-        自定义入口
+      <button wx:if="{{isAdmin}}" class="manage-button" bindtap="openRecommendManager">
+        去管理
       </button>
     </view>
 
@@ -32,30 +70,46 @@
           <text class="hero-card-title">{{item.name}}</text>
           <text class="hero-card-desc">{{item.description}}</text>
           <view class="hero-card-foot">
-            <text class="hero-card-price">¥{{item.priceText}}</text>
-            <button class="hero-card-button" bindtap="goOrderTab">
-              去点餐
-            </button>
+            <view>
+              <text class="hero-card-price">¥{{item.priceText}}</text>
+              <text class="hero-card-meta">{{item.salesText}}</text>
+            </view>
+            <button class="hero-card-button" bindtap="goOrderTab">去点餐</button>
           </view>
         </view>
       </view>
     </view>
 
     <view wx:else class="empty-card">
-      <text class="empty-title">暂未设置自定义推荐</text>
-      <text class="empty-subtitle">
-        管理员可在首页入口或后台中配置展示菜品
-      </text>
+      <text class="empty-title">暂未配置店长推荐</text>
+      <text class="empty-subtitle">管理员可以在后台中指定首页推荐菜品。</text>
+    </view>
+  </view>
+
+  <view wx:if="{{personalRecommendList.length}}" class="section card-surface">
+    <view class="section-head">
+      <view>
+        <text class="section-title">猜你喜欢</text>
+        <text class="section-subtitle">结合你的历史订单与口味偏好，为你生成更贴近习惯的推荐。</text>
+      </view>
+      <button class="manage-button light" bindtap="goOrderTab">继续点餐</button>
+    </view>
+    <view class="guess-list">
+      <view wx:for="{{personalRecommendList}}" wx:key="_id" class="guess-card">
+        <view class="guess-main">
+          <text class="guess-name">{{item.name}}</text>
+          <text class="guess-reason">{{item.reason}}</text>
+        </view>
+        <text class="guess-price">¥{{item.priceText}}</text>
+      </view>
     </view>
   </view>
 
   <view class="section card-surface">
     <view class="section-head">
       <view>
-        <text class="section-title">销量热榜 TOP 8</text>
-        <text class="section-subtitle">
-          系统根据销量自动推荐本店最受欢迎的食品
-        </text>
+        <text class="section-title">热销榜 TOP 6</text>
+        <text class="section-subtitle">系统依据销量自动排序，适合想快速决策的用户。</text>
       </view>
       <button class="manage-button light" bindtap="goOrderTab">去点餐</button>
     </view>
@@ -67,17 +121,9 @@
         <text class="sales-name">{{item.name}}</text>
         <view class="sales-meta">
           <text class="sales-price">¥{{item.priceText}}</text>
-          <text class="sales-count">月售 {{item.sales}}</text>
+          <text class="sales-count">{{item.salesText}}</text>
         </view>
       </view>
     </view>
-  </view>
-
-  <view class="action-banner card-surface">
-    <view>
-      <text class="action-title">准备好开始点餐了吗？</text>
-      <text class="action-subtitle">所有点餐相关功能已统一迁移到点餐页</text>
-    </view>
-    <button class="primary-button" bindtap="goOrderTab">进入点餐页</button>
   </view>
 </view>

@@ -6,7 +6,7 @@
     "avatarUrl": "/images/icons/avatar.png",
     "role": "customer",
     "favoriteCategories": [
-      "招牌主食",
+      "招牌热饭",
       "甜品饮品"
     ],
     "orderCount": 2,
@@ -20,7 +20,7 @@
     "avatarUrl": "/images/icons/avatar.png",
     "role": "admin",
     "favoriteCategories": [
-      "招牌主食"
+      "招牌热饭"
     ],
     "orderCount": 0,
     "totalSpend": 0,

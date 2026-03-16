@@ -1,8 +1,10 @@
 # 数据库与索引建议
 
+> 本文是数据库设计的简版索引建议，完整字段请参考 `docs/database-schema.md`。
+
 ## 集合设计
 
-### dishes
+### `dishes`
 
 建议字段：
 
@@ -14,38 +16,38 @@
 - `sales`：销量
 - `image`：图片路径或云存储 fileID
 - `isAvailable`：是否上架
-- `isManualRecommend`：是否加入首页店长推荐
+- `isManualRecommend`：是否加入首页推荐
 - `specs`：规格数组
 - `createdAt` / `updatedAt`
 
 推荐索引：
 
-1. `category + isAvailable + sales` 复合索引，用于点餐页分类检索与热销排序
-2. `isManualRecommend + isAvailable + updatedAt` 复合索引，用于首页店长推荐模块
-3. `sales` 单字段索引，用于热销榜与推荐降级策略
+1. `category + isAvailable + sales`：用于点餐页分类筛选与热销排序
+2. `isManualRecommend + isAvailable + updatedAt`：用于首页店长推荐
+3. `sales`：用于热销榜与推荐降级排序
 
-### orders
+### `orders`
 
 建议字段：
 
-- `userId`：关联用户文档 ID
+- `userId`：关联用户 ID
 - `openId`：下单用户 openId
 - `status`：订单状态
-- `items`：订单菜品明细
+- `items`：订单明细
 - `totalPrice`：总价
 - `dedupToken`：幂等 token
 - `statusTimeline`：状态时间线
-- `stockRollbacked`：库存是否回滚
+- `stockRollbacked`：库存是否已回滚
 - `createdAt` / `updatedAt`
 
 推荐索引：
 
-1. `userId + createdAt` 复合索引，用于用户订单列表
-2. `status + createdAt` 复合索引，用于后台待处理订单
-3. `dedupToken` 唯一索引，用于服务端防重复下单
-4. `openId + status` 复合索引，用于用户订单授权校验与状态筛选
+1. `userId + createdAt`：用户订单列表
+2. `status + createdAt`：后台待处理订单
+3. `dedupToken`：防重复下单
+4. `openId + status`：用户授权校验与筛选
 
-### users
+### `users`
 
 建议字段：
 
@@ -60,13 +62,13 @@
 
 推荐索引：
 
-1. `openId` 唯一索引，用于登录初始化
-2. `role + updatedAt` 复合索引，用于管理员权限查询
-3. `orderCount` 单字段索引，用于用户分层运营
+1. `openId`：登录初始化
+2. `role + updatedAt`：管理员权限查询
+3. `orderCount`：用户分层运营
 
 ## 事务与安全建议
 
-- 下单与取消订单务必走云函数事务，避免库存与订单状态不一致。
-- 建议在 `orders.dedupToken` 上启用唯一索引，配合客户端防重守卫双层兜底。
-- 管理员写操作全部经云函数执行，并在服务端二次校验 `role=admin`。
-- 用户信息同步建议通过 `wx.login` + 云函数 `wxContext.OPENID` 组合完成，不在前端持久化敏感凭证。
+- 下单与取消订单必须走云函数事务，避免库存与订单状态不一致
+- 建议在 `orders.dedupToken` 上启用唯一索引
+- 管理员写操作全部经云函数执行，并在服务端二次校验 `role=admin`
+- 用户身份同步通过 `wx.login` + `wxContext.OPENID` 完成，不在前端持久化敏感凭证

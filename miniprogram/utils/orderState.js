@@ -48,6 +48,23 @@ function canTransit(currentStatus, nextStatus) {
 }
 
 /**
+ * 将页面动作映射为实际目标状态。
+ * 部分动作是交互语义，例如 pay 和 again，不直接等于订单状态。
+ * @param {string} actionKey - 页面动作 key。
+ * @returns {string} 目标订单状态。
+ */
+function resolveActionStatus(actionKey) {
+  const actionMap = {
+    pay: ORDER_STATUS.PREPARING,
+    preparing: ORDER_STATUS.PREPARING,
+    completed: ORDER_STATUS.COMPLETED,
+    cancelled: ORDER_STATUS.CANCELLED
+  }
+
+  return actionMap[actionKey] || actionKey
+}
+
+/**
  * 构建订单操作按钮。
  * @param {Object} order - 订单对象。
  * @param {string} role - 用户角色。
@@ -71,7 +88,7 @@ function buildOrderActions(order, role) {
   }
 
   if (order.status === ORDER_STATUS.PENDING_PAYMENT) {
-    actions.push({ key: 'preparing', text: '模拟支付' })
+    actions.push({ key: 'pay', text: '立即支付' })
     actions.push({ key: 'cancelled', text: '取消订单', danger: true })
   }
 
@@ -85,5 +102,6 @@ function buildOrderActions(order, role) {
 module.exports = {
   getStatusMeta,
   canTransit,
+  resolveActionStatus,
   buildOrderActions
 }

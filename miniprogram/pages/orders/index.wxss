@@ -60,6 +60,7 @@
   margin-top: 12rpx;
   color: var(--color-subtext);
   font-size: 24rpx;
+  line-height: 1.6;
 }
 
 .order-head,
@@ -76,9 +77,10 @@
 }
 
 .order-time,
-.order-count {
+.order-count,
+.order-remark {
   display: block;
-  margin-top: 8rpx;
+  margin-top: 10rpx;
   color: var(--color-subtext);
   font-size: 22rpx;
 }
@@ -102,6 +104,11 @@
   flex: 1;
 }
 
+.order-side {
+  min-width: 100rpx;
+  text-align: right;
+}
+
 .order-name {
   display: block;
   font-size: 26rpx;
@@ -113,6 +120,13 @@
   margin-top: 8rpx;
   color: var(--color-subtext);
   font-size: 22rpx;
+}
+
+.order-item-price {
+  display: block;
+  color: #ff4d4f;
+  font-size: 24rpx;
+  font-weight: 600;
 }
 
 .order-meta,

@@ -16,7 +16,7 @@
           {{hasLogin ? currentUser.nickname : '微信账号登录'}}
         </text>
         <text class="login-subtitle">
-          {{hasLogin ? '已同步微信头像与昵称' : '未登录时仅显示登录模块'}}
+          {{hasLogin ? '当前账号已同步头像与昵称，可继续查看订单与推荐。' : '登录后可同步订单、身份与推荐数据。'}}
         </text>
         <input
           wx:if="{{!hasLogin}}"
@@ -34,8 +34,7 @@
     </view>
 
     <view class="login-actions">
-      <button wx:if="{{!hasLogin}}" class="primary-button"
-        bindtap="handleWechatLogin">
+      <button wx:if="{{!hasLogin}}" class="primary-button" bindtap="handleWechatLogin">
         微信登录
       </button>
       <button wx:else class="light-button" bindtap="handleLogout">
@@ -46,15 +45,21 @@
 
   <block wx:if="{{hasLogin}}">
     <view class="feature-grid">
-      <view
-        wx:for="{{featureList}}"
-        wx:key="key"
-        class="feature-card card-surface"
-        bindtap="handleOpenFeature"
-        data-index="{{index}}"
-      >
-        <text class="feature-title">{{item.title}}</text>
-        <text class="feature-tip">{{item.tip}}</text>
+      <view class="feature-card card-surface" bindtap="openOrdersPage">
+        <text class="feature-title">我的订单</text>
+        <text class="feature-tip">查看订单状态、支付进度与历史记录。</text>
+      </view>
+      <view class="feature-card card-surface" bindtap="openOrderPage">
+        <text class="feature-title">继续点餐</text>
+        <text class="feature-tip">返回菜单页，把喜欢的菜继续加入购物车。</text>
+      </view>
+      <view class="feature-card card-surface" bindtap="openStoreLocation">
+        <text class="feature-title">门店导航</text>
+        <text class="feature-tip">快速打开微信地图查看门店位置与路线。</text>
+      </view>
+      <view wx:if="{{isAdmin}}" class="feature-card card-surface" bindtap="openAdminPage">
+        <text class="feature-title">管理后台</text>
+        <text class="feature-tip">处理订单、维护菜单与调整首页推荐。</text>
       </view>
     </view>
 
@@ -79,31 +84,31 @@
 
     <view class="recommend-card card-surface">
       <text class="section-title">猜你喜欢</text>
-      <text class="section-subtitle">基于你的历史订单进行个性化推荐</text>
-      <view wx:for="{{recommendList}}" wx:key="_id" class="recommend-row">
-        <text class="recommend-name">{{item.name}}</text>
-        <text class="recommend-note">{{item.reason}}</text>
+      <text class="section-subtitle">基于你的历史订单生成个性化推荐。</text>
+      <view wx:if="{{recommendList.length}}">
+        <view wx:for="{{recommendList}}" wx:key="_id" class="recommend-row">
+          <view class="recommend-main">
+            <text class="recommend-name">{{item.name}}</text>
+            <text class="recommend-note">{{item.reason}}</text>
+          </view>
+          <text class="recommend-price">¥{{item.priceText}}</text>
+        </view>
       </view>
-    </view>
-
-    <view wx:if="{{isAdmin}}" class="admin-card card-surface">
-      <text class="section-title">管理员入口</text>
-      <text class="section-subtitle">可进入后台管理首页推荐、菜品与订单</text>
-      <button class="primary-button" bindtap="openAdminPage">打开管理后台</button>
+      <view wx:else class="empty-box">
+        <text class="empty-note">暂时还没有推荐结果，先去下第一单吧。</text>
+      </view>
     </view>
 
     <view wx:if="{{useMockData}}" class="dev-card card-surface">
       <text class="section-title">演示身份切换</text>
       <text class="section-subtitle">
-        仅在 Mock 模式展示，方便预览普通用户与管理员效果
+        当前运行在 Mock 模式下，可快速切换普通用户与管理员身份，验证完整流程。
       </text>
       <view class="dev-actions">
-        <button class="light-button" bindtap="handleMockRoleSwitch"
-          data-role="customer">
+        <button class="light-button" bindtap="handleMockRoleSwitch" data-role="customer">
           切换普通用户
         </button>
-        <button class="light-button" bindtap="handleMockRoleSwitch"
-          data-role="admin">
+        <button class="light-button" bindtap="handleMockRoleSwitch" data-role="admin">
           切换管理员
         </button>
       </view>

@@ -1,17 +1,15 @@
 <view class="orders-page fade-enter">
   <view class="orders-head card-surface">
     <view>
-      <text class="section-title">我的订单</text>
-      <text class="section-subtitle">
-        查看待支付、制作中、已完成、已取消等状态流转
-      </text>
+      <text class="section-title">{{isAdminView ? '订单处理台' : '我的订单'}}</text>
+      <text class="section-subtitle">{{isAdminView ? '在这里统一处理待支付、制作中与已完成订单。' : '查看待支付、制作中、已完成与已取消的订单状态。'}}</text>
     </view>
     <button class="ghost-button" bindtap="goOrderTab">返回点餐</button>
   </view>
 
   <view wx:if="{{!hasLogin}}" class="empty card-surface">
     <text class="empty-title">你还没有登录</text>
-    <text class="empty-subtitle">登录后即可查看自己的全部订单信息</text>
+    <text class="empty-subtitle">登录后即可查看自己的订单记录与状态变化。</text>
     <button class="ghost-button" bindtap="goUserTab">去登录</button>
   </view>
 
@@ -30,15 +28,27 @@
       </view>
     </scroll-view>
 
-    <view wx:if="{{!orderList.length}}" class="empty card-surface">
+    <view wx:if="{{loading && !orderList.length}}" class="empty card-surface">
+      <text class="empty-title">订单加载中</text>
+      <text class="empty-subtitle">正在同步最新订单状态，请稍候。</text>
+    </view>
+
+    <view wx:if="{{errorMessage && !orderList.length}}" class="empty card-surface">
+      <text class="empty-title">订单加载失败</text>
+      <text class="empty-subtitle">{{errorMessage}}</text>
+      <button class="ghost-button" bindtap="loadOrders">重新加载</button>
+    </view>
+
+    <view wx:if="{{!loading && !errorMessage && !orderList.length}}" class="empty card-surface">
       <text class="empty-title">当前筛选下暂无订单</text>
-      <text class="empty-subtitle">去点餐页挑选一份温暖好餐吧</text>
+      <text class="empty-subtitle">去点餐页挑选一份喜欢的餐食吧。</text>
     </view>
 
     <view
       wx:for="{{orderList}}"
       wx:key="_id"
       wx:for-item="order"
+      wx:for-index="orderIndex"
       class="order-card card-surface"
     >
       <view class="order-head">
@@ -49,6 +59,8 @@
         <status-chip status="{{order.status}}" />
       </view>
 
+      <text class="order-remark">备注：{{order.remarkText}}</text>
+
       <view
         wx:for="{{order.items}}"
         wx:key="itemKey"
@@ -58,11 +70,12 @@
         <image class="order-image" src="{{dish.image}}" mode="aspectFill" />
         <view class="order-main">
           <text class="order-name">{{dish.name}}</text>
-          <text class="order-spec">
-            {{dish.selections.length ? dish.selections[0].optionLabel : '标准份'}}
-          </text>
+          <text class="order-spec">{{dish.selectionText}}</text>
         </view>
-        <text class="order-meta">x{{dish.quantity}}</text>
+        <view class="order-side">
+          <text class="order-item-price">¥{{dish.priceText}}</text>
+          <text class="order-meta">x{{dish.quantity}}</text>
+        </view>
       </view>
 
       <view class="order-foot">
@@ -75,9 +88,10 @@
             wx:for="{{order.actions}}"
             wx:key="key"
             wx:for-item="action"
+            wx:for-index="actionIndex"
             class="order-action {{action.danger ? 'is-danger' : ''}}"
             bindtap="handleOrderAction"
-            data-order-id="{{order._id}}"
+            data-index="{{orderIndex}}"
             data-action="{{action.key}}"
           >
             {{action.text}}

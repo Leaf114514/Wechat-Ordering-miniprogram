@@ -2,18 +2,20 @@ const cache = require('./utils/cache')
 const config = require('./config/index')
 const { STORAGE_KEYS } = require('./constants/index')
 const mockStore = require('./services/mockStore')
+const { cloud } = require('./utils/wechat/index')
 
 /**
  * 初始化云开发能力。
- * @returns {boolean} 是否初始化成功。
+ * 这里统一走微信能力层，避免 App 与原生 API 直接耦合。
+ * @returns {boolean} 是否成功启用云开发。
  */
 function initCloud() {
-  if (!wx.cloud || !config.cloudEnvId) {
+  if (!config.cloudEnvId) {
     return false
   }
 
   try {
-    wx.cloud.init({
+    cloud.init({
       env: config.cloudEnvId,
       traceUser: true
     })
@@ -26,7 +28,7 @@ function initCloud() {
 
 App({
   /**
-   * 小程序启动时执行初始化。
+   * 小程序启动时初始化全局运行环境。
    */
   onLaunch() {
     const cloudReady = initCloud()
@@ -51,8 +53,8 @@ App({
   },
 
   /**
-   * 更新购物车全局状态并持久化。
-   * @param {Array} cartItems - 最新购物车列表。
+   * 同步购物车到全局状态与本地缓存。
+   * @param {Array} cartItems - 最新购物车条目。
    */
   setCart(cartItems) {
     this.globalData.cartItems = cartItems
@@ -60,8 +62,8 @@ App({
   },
 
   /**
-   * 更新当前用户并持久化。
-   * @param {Object|null} user - 用户对象。
+   * 同步当前用户到全局状态与本地缓存。
+   * @param {Object|null} user - 当前用户。
    */
   setCurrentUser(user) {
     this.globalData.currentUser = user || null

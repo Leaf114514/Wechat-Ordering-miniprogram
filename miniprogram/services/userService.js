@@ -1,5 +1,5 @@
 const cache = require('../utils/cache')
-const { auth } = require('../utils/wechat')
+const { auth } = require('../utils/wechat/index')
 const cloudService = require('./cloudService')
 const mockStore = require('./mockStore')
 const {
@@ -9,7 +9,7 @@ const {
 } = require('../constants/index')
 
 /**
- * 复制用户对象，避免页面层直接修改全局数据。
+ * 复制用户对象，避免页面层直接修改全局状态。
  * @param {Object|null} user - 原始用户对象。
  * @returns {Object|null} 深拷贝后的用户对象。
  */
@@ -18,9 +18,9 @@ function cloneUser(user) {
 }
 
 /**
- * 规范化微信资料，确保头像和昵称始终有可用值。
+ * 规范化微信资料，确保头像和昵称始终可用。
  * @param {Object} profile - 页面传入的微信资料。
- * @returns {{avatarUrl:string,nickname:string}} 安全用户资料。
+ * @returns {{avatarUrl:string,nickname:string}} 安全的用户资料。
  */
 function buildSafeWechatProfile(profile) {
   return {
@@ -99,6 +99,15 @@ async function ensureCurrentUser() {
  */
 function isLoggedIn() {
   return Boolean(getCachedUser())
+}
+
+/**
+ * 判断当前用户是否为管理员。
+ * @returns {boolean} 是否为管理员。
+ */
+function isAdmin() {
+  const user = getCachedUser()
+  return Boolean(user && user.role === USER_ROLE.ADMIN)
 }
 
 /**
@@ -214,7 +223,7 @@ function updateUserMetrics(order) {
   }
 
   target.orderCount += 1
-  target.totalSpend += order.totalPrice
+  target.totalSpend += Number(order.totalPrice || 0)
   target.lastLoginAt = Date.now()
   mockStore.saveMockUsers(users)
   updateCurrentUserState(target)
@@ -225,6 +234,7 @@ module.exports = {
   ensureCurrentUser,
   getCachedUser,
   isLoggedIn,
+  isAdmin,
   loginWithWechatProfile,
   logoutCurrentUser,
   switchMockRole,

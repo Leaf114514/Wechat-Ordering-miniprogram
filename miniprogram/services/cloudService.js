@@ -1,4 +1,5 @@
 const config = require('../config/index')
+const { cloud } = require('../utils/wechat/index')
 
 /**
  * 获取全局 App 实例。
@@ -27,7 +28,7 @@ function shouldUseMock() {
  */
 function isCloudReady() {
   const app = getAppInstance()
-  return Boolean(app && app.globalData.cloudReady && wx.cloud)
+  return Boolean(app && app.globalData.cloudReady && cloud.isSupported())
 }
 
 /**
@@ -36,10 +37,10 @@ function isCloudReady() {
  */
 function getDatabase() {
   if (!isCloudReady()) {
-    throw new Error('当前未配置云开发环境，请先填写 cloudEnvId。')
+    throw new Error('当前未配置云开发环境，请先填写 cloudEnvId')
   }
 
-  return wx.cloud.database()
+  return cloud.getDatabase()
 }
 
 /**
@@ -50,13 +51,10 @@ function getDatabase() {
  */
 async function callCloudFunction(name, data) {
   if (!isCloudReady()) {
-    throw new Error('云函数不可用，请先初始化云开发环境。')
+    throw new Error('云函数不可用，请先初始化云开发环境')
   }
 
-  return wx.cloud.callFunction({
-    name,
-    data
-  })
+  return cloud.callFunction(name, data)
 }
 
 module.exports = {
