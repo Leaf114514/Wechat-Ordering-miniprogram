@@ -1,28 +1,46 @@
-<view class="dish-card card-surface ripple" bindtap="handleTap">
+<view class="dish-card card-surface">
   <image
     class="dish-image"
     src="{{dish.image}}"
     mode="aspectFill"
     lazy-load
+    bindtap="handleTap"
   />
-  <view class="dish-content">
+  <view class="dish-content" bindtap="handleTap">
     <view class="dish-main">
       <view class="dish-head">
-        <view class="dish-name">{{dish.name}}</view>
+        <view class="dish-title-row">
+          <text class="dish-name">{{dish.name}}</text>
+          <text class="dish-rating">{{dish.ratingText}} 分</text>
+        </view>
         <view wx:if="{{dish.tags && dish.tags.length}}" class="dish-tags">
           <block wx:for="{{dish.tags}}" wx:key="*this">
             <text wx:if="{{index < 2}}" class="dish-tag">{{item}}</text>
           </block>
         </view>
       </view>
-      <view class="dish-desc">{{dish.description}}</view>
+      <text class="dish-desc">{{dish.description}}</text>
+      <view class="dish-meta">
+        <text>{{dish.salesText}}</text>
+        <text>{{dish.stockText}}</text>
+      </view>
     </view>
     <view class="dish-footer">
-      <view class="dish-price-group">
-        <text class="dish-price">￥{{dish.priceText}}</text>
-        <text wx:if="{{dish.originPriceText}}" class="dish-origin">￥{{dish.originPriceText}}</text>
+      <view class="dish-price-row">
+        <view class="dish-price-group">
+          <text class="dish-price">¥{{dish.priceText}}</text>
+          <text wx:if="{{dish.originPriceText}}" class="dish-origin">¥{{dish.originPriceText}}</text>
+        </view>
       </view>
-      <button class="add-button" catchtap="handleAdd">加入</button>
+      <view class="dish-actions">
+        <button
+          class="add-button {{!dish.isAvailable || !dish.stock ? 'is-disabled' : ''}}"
+          catchtap="handleAdd"
+          disabled="{{!dish.isAvailable || !dish.stock}}"
+        >
+          {{!dish.isAvailable ? '已下架' : !dish.stock ? '已售罄' : dish.specs && dish.specs.length ? '选规格' : '加入'}}
+        </button>
+      </view>
     </view>
   </view>
 </view>

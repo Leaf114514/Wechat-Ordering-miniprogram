@@ -22,8 +22,8 @@ const mockOrders = [
         quantity: 1,
         price: 34,
         selections: [
-          { groupName: '口味', optionLabel: '蜜汁橙香' },
-          { groupName: '辣度', optionLabel: '不辣' }
+          { groupName: '口味', optionLabel: '蜜汁橙香', delta: 2 },
+          { groupName: '辣度', optionLabel: '不辣', delta: 0 }
         ]
       },
       {
@@ -34,8 +34,8 @@ const mockOrders = [
         quantity: 1,
         price: 16,
         selections: [
-          { groupName: '冰量', optionLabel: '少冰' },
-          { groupName: '甜度', optionLabel: '五分糖' }
+          { groupName: '冰量', optionLabel: '少冰', delta: 0 },
+          { groupName: '甜度', optionLabel: '五分糖', delta: 0 }
         ]
       }
     ]
@@ -62,7 +62,7 @@ const mockOrders = [
         quantity: 1,
         price: 34,
         selections: [
-          { groupName: '配菜', optionLabel: '时蔬' }
+          { groupName: '配菜', optionLabel: '时蔬', delta: 0 }
         ]
       }
     ]
@@ -88,8 +88,8 @@ const mockOrders = [
         quantity: 1,
         price: 38,
         selections: [
-          { groupName: '酱汁', optionLabel: '凯撒风味' },
-          { groupName: '谷物底', optionLabel: '双拼' }
+          { groupName: '酱汁', optionLabel: '凯撒风味', delta: 1 },
+          { groupName: '谷物底', optionLabel: '双拼', delta: 2 }
         ]
       },
       {
@@ -100,7 +100,7 @@ const mockOrders = [
         quantity: 1,
         price: 14,
         selections: [
-          { groupName: '蘸酱', optionLabel: '香辣酱' }
+          { groupName: '蘸酱', optionLabel: '香辣酱', delta: 1 }
         ]
       }
     ]

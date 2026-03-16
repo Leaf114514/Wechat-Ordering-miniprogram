@@ -8,7 +8,7 @@ function stopPullDownRefresh() {
 }
 
 /**
- * 在下拉刷新场景下统一执行任务，并在结束时自动关闭刷新动画。
+ * 在下拉刷新场景中统一执行任务，并在结束时自动关闭刷新动画。
  * @param {Function} task - 刷新期间需要执行的异步任务。
  * @returns {Promise<*>} 异步任务结果。
  */

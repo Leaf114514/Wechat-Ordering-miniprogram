@@ -15,7 +15,10 @@ function normalizeDish(dish) {
     priceText: formatCurrency(dish.price),
     originPriceText: dish.originPrice
       ? formatCurrency(dish.originPrice)
-      : ''
+      : '',
+    salesText: `月售 ${dish.sales || 0}`,
+    stockText: `库存 ${dish.stock || 0}`,
+    ratingText: Number(dish.rating || 0).toFixed(1)
   })
 }
 
@@ -56,7 +59,9 @@ async function getAllDishes(includeUnavailable) {
 async function getCategoryList() {
   const dishes = await getAllDishes(true)
   const categorySet = dishes.reduce((accumulator, dish) => {
-    accumulator.add(dish.category)
+    if (dish.category) {
+      accumulator.add(dish.category)
+    }
     return accumulator
   }, new Set(CATEGORY_LIST.filter((item) => item !== '全部')))
 
@@ -78,7 +83,7 @@ async function getDishesByCategory(category) {
 }
 
 /**
- * 获取点餐页瀑布流数据。
+ * 获取点餐页菜品流数据。
  * @param {Object} params - 查询参数。
  * @param {string} params.category - 分类名称。
  * @param {number} params.pageNo - 页码。

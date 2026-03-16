@@ -1,5 +1,6 @@
 {
   "navigationBarTitleText": "我的订单",
+  "enablePullDownRefresh": true,
   "usingComponents": {
     "status-chip": "/components/status-chip/index"
   }

@@ -1,4 +1,4 @@
-const { storage } = require('./wechat')
+const { storage } = require('./wechat/index')
 
 /**
  * 向后兼容的缓存工具出口。

@@ -3,9 +3,21 @@ const {
   USER_ROLE,
   STORAGE_KEYS
 } = require('../constants/index')
-const { formatCurrency, formatTimestamp } = require('../utils/formatter')
-const { createSubmitGuard, createIdempotencyToken } = require('../utils/guard')
-const { buildOrderActions, canTransit } = require('../utils/orderState')
+const {
+  formatCurrency,
+  formatTimestamp,
+  joinSelections
+} = require('../utils/formatter')
+const {
+  createSubmitGuard,
+  createIdempotencyToken
+} = require('../utils/guard')
+const {
+  buildOrderActions,
+  canTransit,
+  resolveActionStatus
+} = require('../utils/orderState')
+const { payment } = require('../utils/wechat/index')
 const cloudService = require('./cloudService')
 const mockStore = require('./mockStore')
 const userService = require('./userService')
@@ -14,20 +26,80 @@ const cache = require('../utils/cache')
 const submitGuard = createSubmitGuard(2000)
 
 /**
- * 格式化订单视图信息。
+ * 构建用于校验库存的菜品映射。
+ * @param {Array} dishes - 菜品列表。
+ * @returns {Object} 菜品映射。
+ */
+function buildDishMap(dishes) {
+  return dishes.reduce((accumulator, dish) => {
+    accumulator[dish._id] = dish
+    return accumulator
+  }, {})
+}
+
+/**
+ * 校验购物车条目。
+ * @param {Array} cartItems - 购物车条目。
+ */
+function validateCartItems(cartItems) {
+  if (!Array.isArray(cartItems) || !cartItems.length) {
+    throw new Error('购物车为空，请先选择菜品')
+  }
+}
+
+/**
+ * 校验购物车库存与上下架状态。
+ * @param {Array} cartItems - 购物车条目。
+ * @param {Object} dishMap - 菜品映射。
+ */
+function assertCartStock(cartItems, dishMap) {
+  cartItems.forEach((item) => {
+    const dish = dishMap[item.dishId]
+    if (!dish || !dish.isAvailable) {
+      throw new Error(`${item.name} 已下架，请刷新菜单后重试`)
+    }
+
+    if (Number(dish.stock || 0) < Number(item.quantity || 0)) {
+      throw new Error(`${item.name} 库存不足，请调整数量后重试`)
+    }
+  })
+}
+
+/**
+ * 统一格式化订单视图信息。
  * @param {Object} order - 原始订单。
  * @param {string} role - 当前角色。
  * @returns {Object} 展示订单。
  */
 function decorateOrder(order, role) {
-  const itemCount = order.items.reduce((sum, item) => sum + item.quantity, 0)
+  const items = (order.items || []).map((item) => {
+    return Object.assign({}, item, {
+      priceText: formatCurrency(item.price),
+      selectionText: joinSelections(item.selections || [])
+    })
+  })
+  const itemCount = items.reduce((sum, item) => {
+    return sum + Number(item.quantity || 0)
+  }, 0)
 
   return Object.assign({}, order, {
+    items,
     totalPriceText: formatCurrency(order.totalPrice),
     createdAtText: formatTimestamp(order.createdAt),
+    remarkText: order.remark || '无备注',
     itemCount,
     actions: buildOrderActions(order, role)
   })
+}
+
+/**
+ * 获取指定订单。
+ * @param {string} orderId - 订单 ID。
+ * @returns {Object|null} 订单对象。
+ */
+function getMockOrderById(orderId) {
+  const orders = mockStore.getMockOrders()
+  return orders.find((item) => item._id === orderId) || null
 }
 
 /**
@@ -103,17 +175,14 @@ async function placeMockOrder(payload) {
     return decorateOrder(existed, USER_ROLE.CUSTOMER)
   }
 
-  payload.cartItems.forEach((item) => {
-    const dish = dishes.find((dishItem) => dishItem._id === item.dishId)
-    if (!dish || dish.stock < item.quantity) {
-      throw new Error(`${item.name} 库存不足，请刷新后重试`)
-    }
-  })
+  const dishMap = buildDishMap(dishes)
+  assertCartStock(payload.cartItems, dishMap)
 
   const now = Date.now()
   const orderId = `order-${now}`
+
   payload.cartItems.forEach((item) => {
-    const dish = dishes.find((dishItem) => dishItem._id === item.dishId)
+    const dish = dishMap[item.dishId]
     dish.stock -= item.quantity
     dish.sales += item.quantity
   })
@@ -123,7 +192,7 @@ async function placeMockOrder(payload) {
     userId: user._id,
     status: ORDER_STATUS.PENDING_PAYMENT,
     totalPrice: Number(payload.totalPrice),
-    remark: payload.remark || '',
+    remark: (payload.remark || '').trim(),
     createdAt: now,
     updatedAt: now,
     stockRollbacked: false,
@@ -136,9 +205,9 @@ async function placeMockOrder(payload) {
       dishId: item.dishId,
       name: item.name,
       image: item.image,
-      quantity: item.quantity,
-      price: item.price,
-      selections: item.selections
+      quantity: Number(item.quantity || 0),
+      price: Number(item.price || 0),
+      selections: item.selections || []
     }))
   }
 
@@ -163,6 +232,8 @@ async function placeOrder(payload) {
     throw new Error('请先登录后再下单')
   }
 
+  validateCartItems(payload.cartItems)
+
   const idempotencyToken = payload.idempotencyToken ||
     createIdempotencyToken(currentUser._id)
   const guardKey = `place-order-${currentUser._id}`
@@ -181,7 +252,7 @@ async function placeOrder(payload) {
     const result = await cloudService.callCloudFunction('placeOrder', {
       userId: currentUser._id,
       cartItems: payload.cartItems,
-      remark: payload.remark || '',
+      remark: (payload.remark || '').trim(),
       idempotencyToken
     })
 
@@ -207,6 +278,7 @@ function updateMockOrderStatus(orderId, nextStatus) {
   const currentUser = userService.getCachedUser()
   const orders = mockStore.getMockOrders()
   const dishes = mockStore.getMockDishes()
+  const dishMap = buildDishMap(dishes)
   const order = orders.find((item) => item._id === orderId)
 
   if (!currentUser) {
@@ -234,9 +306,10 @@ function updateMockOrderStatus(orderId, nextStatus) {
 
   if (nextStatus === ORDER_STATUS.CANCELLED && !order.stockRollbacked) {
     order.items.forEach((item) => {
-      const dish = dishes.find((dishItem) => dishItem._id === item.dishId)
+      const dish = dishMap[item.dishId]
       if (dish) {
         dish.stock += item.quantity
+        dish.sales = Math.max(0, dish.sales - item.quantity)
       }
     })
     order.stockRollbacked = true
@@ -258,13 +331,15 @@ async function updateOrderStatus(payload) {
     throw new Error('请先登录后再操作订单')
   }
 
+  const nextStatus = resolveActionStatus(payload.nextStatus)
+
   if (cloudService.shouldUseMock()) {
-    return updateMockOrderStatus(payload.orderId, payload.nextStatus)
+    return updateMockOrderStatus(payload.orderId, nextStatus)
   }
 
   const result = await cloudService.callCloudFunction('updateOrderStatus', {
     orderId: payload.orderId,
-    nextStatus: payload.nextStatus,
+    nextStatus,
     operatorRole: currentUser.role,
     userId: currentUser._id
   })
@@ -274,6 +349,50 @@ async function updateOrderStatus(payload) {
   }
 
   return decorateOrder(result.result.data, currentUser.role)
+}
+
+/**
+ * 发起支付。
+ * 当前版本优先保证闭环可运行，因此真实环境未接入商户参数时自动走 mock 支付流程。
+ * @param {string} orderId - 订单 ID。
+ * @returns {Promise<Object>} 支付后的订单。
+ */
+async function payOrder(orderId) {
+  const order = cloudService.shouldUseMock()
+    ? getMockOrderById(orderId)
+    : null
+
+  if (order && order.status !== ORDER_STATUS.PENDING_PAYMENT) {
+    throw new Error('当前订单不需要支付')
+  }
+
+  await payment.requestPayment({
+    mock: true
+  })
+
+  return updateOrderStatus({
+    orderId,
+    nextStatus: 'pay'
+  })
+}
+
+/**
+ * 将历史订单转换为购物车条目，供“再来一单”使用。
+ * @param {Object} order - 历史订单。
+ * @returns {Array} 购物车条目数组。
+ */
+function buildCartItemsFromOrder(order) {
+  return (order.items || []).map((item) => ({
+    itemKey: item.itemKey,
+    dishId: item.dishId,
+    name: item.name,
+    image: item.image,
+    quantity: Number(item.quantity || 1),
+    price: Number(item.price || 0),
+    priceText: formatCurrency(item.price),
+    selections: item.selections || [],
+    selectionText: joinSelections(item.selections || [])
+  }))
 }
 
 /**
@@ -298,7 +417,7 @@ async function getOrderMetrics(userId) {
   const metrics = orders.reduce(
     (accumulator, order) => {
       accumulator.totalOrders += 1
-      accumulator.totalAmount += order.totalPrice
+      accumulator.totalAmount += Number(order.totalPrice || 0)
       accumulator[order.status] = (accumulator[order.status] || 0) + 1
       return accumulator
     },
@@ -320,5 +439,7 @@ module.exports = {
   getOrders,
   placeOrder,
   updateOrderStatus,
+  payOrder,
+  buildCartItemsFromOrder,
   getOrderMetrics
 }

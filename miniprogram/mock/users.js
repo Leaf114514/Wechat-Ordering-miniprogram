@@ -5,7 +5,7 @@ const mockUsers = [
     nickname: '暖橙食客',
     avatarUrl: '/images/icons/avatar.png',
     role: 'customer',
-    favoriteCategories: ['招牌主食', '甜品饮品'],
+    favoriteCategories: ['招牌热饭', '甜品饮品'],
     orderCount: 2,
     totalSpend: 84,
     lastLoginAt: 1773560400000
@@ -16,7 +16,7 @@ const mockUsers = [
     nickname: '店长小橙',
     avatarUrl: '/images/icons/avatar.png',
     role: 'admin',
-    favoriteCategories: ['招牌主食'],
+    favoriteCategories: ['招牌热饭'],
     orderCount: 0,
     totalSpend: 0,
     lastLoginAt: 1773560400000

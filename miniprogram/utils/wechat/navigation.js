@@ -1,5 +1,5 @@
 /**
- * 统一路由入参，兼容直接传 url 和传完整配置对象。
+ * 统一路由参数，兼容直接传 url 和传完整配置对象。
  * @param {string|Object} target - 目标页面。
  * @returns {Object} 标准化后的路由参数。
  */
@@ -24,7 +24,7 @@ function runLater(delay, task) {
 /**
  * 保留当前页面并跳转到新页面。
  * @param {string|Object} target - 目标页面。
- * @returns {*} wx.navigateTo 的返回结果。
+ * @returns {*} wx.navigateTo 返回值。
  */
 function navigateTo(target) {
   return wx.navigateTo(normalizeTarget(target))
@@ -33,7 +33,7 @@ function navigateTo(target) {
 /**
  * 跳转到 tabBar 页面。
  * @param {string|Object} target - 目标页面。
- * @returns {*} wx.switchTab 的返回结果。
+ * @returns {*} wx.switchTab 返回值。
  */
 function switchTab(target) {
   return wx.switchTab(normalizeTarget(target))
@@ -42,16 +42,16 @@ function switchTab(target) {
 /**
  * 关闭当前页面并跳转到新页面。
  * @param {string|Object} target - 目标页面。
- * @returns {*} wx.redirectTo 的返回结果。
+ * @returns {*} wx.redirectTo 返回值。
  */
 function redirectTo(target) {
   return wx.redirectTo(normalizeTarget(target))
 }
 
 /**
- * 返回上一级页面。
- * @param {number} delta - 返回层级，默认 1。
- * @returns {*} wx.navigateBack 的返回结果。
+ * 返回上一页。
+ * @param {number} delta - 返回层级，默认为 1。
+ * @returns {*} wx.navigateBack 返回值。
  */
 function navigateBack(delta) {
   return wx.navigateBack({ delta: delta || 1 })

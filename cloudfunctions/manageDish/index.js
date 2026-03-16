@@ -36,11 +36,11 @@ exports.main = async (event) => {
     if (action === 'save') {
       const now = Date.now()
       const safePayload = {
-        name: payload.name,
-        category: payload.category,
+        name: String(payload.name || '').trim(),
+        category: String(payload.category || '').trim(),
         price: Number(payload.price),
         stock: Number(payload.stock),
-        description: payload.description || '',
+        description: String(payload.description || '').trim(),
         image: payload.image || '/assets/dishes/dish-6.png',
         isAvailable: payload.isAvailable !== false,
         isManualRecommend: Boolean(payload.isManualRecommend),
@@ -52,6 +52,10 @@ exports.main = async (event) => {
           }
         ],
         updatedAt: now
+      }
+
+      if (!safePayload.name || !safePayload.category || safePayload.price <= 0) {
+        throw new Error('菜品信息不完整，无法保存')
       }
 
       if (payload._id) {

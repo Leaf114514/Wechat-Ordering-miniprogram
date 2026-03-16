@@ -5,23 +5,25 @@
       <view class="popup-info">
         <text class="popup-title">{{dish.name}}</text>
         <text class="popup-desc">{{dish.description}}</text>
+        <text class="popup-stock">当前库存 {{dish.stock}}</text>
       </view>
       <button class="popup-close" bindtap="close">×</button>
     </view>
 
-    <view wx:for="{{dish.specs}}" wx:key="name" class="spec-group">
-      <text class="spec-title">{{item.name}}</text>
+    <view wx:for="{{dish.specs}}" wx:key="name" wx:for-item="group" class="spec-group">
+      <text class="spec-title">{{group.name}}</text>
       <view class="spec-options">
         <view
-          wx:for="{{item.options}}"
+          wx:for="{{group.options}}"
           wx:key="label"
-          class="spec-option {{selectedMap[item.name] === item.label ? 'is-active' : ''}}"
+          wx:for-item="option"
+          class="spec-option {{selectedMap[group.name] === option.label ? 'is-active' : ''}}"
           bindtap="handleOptionTap"
-          data-group="{{item.name}}"
-          data-option="{{item.label}}"
+          data-group="{{group.name}}"
+          data-option="{{option.label}}"
         >
-          <text>{{item.label}}</text>
-          <text wx:if="{{item.delta}}">+¥{{item.delta}}</text>
+          <text>{{option.label}}</text>
+          <text wx:if="{{option.delta}}">+¥{{option.delta}}</text>
         </view>
       </view>
     </view>
@@ -32,8 +34,12 @@
         <text class="qty-value">{{quantity}}</text>
         <button class="qty-button" bindtap="increase">+</button>
       </view>
-      <button class="confirm-button ripple" bindtap="confirm">
-        加入购物车 ¥{{finalPriceText}}
+      <button
+        class="confirm-button ripple {{!dish.stock ? 'is-disabled' : ''}}"
+        bindtap="confirm"
+        disabled="{{!dish.stock}}"
+      >
+        {{dish.stock ? '加入购物车 ¥' + finalPriceText : '当前已售罄'}}
       </button>
     </view>
   </view>

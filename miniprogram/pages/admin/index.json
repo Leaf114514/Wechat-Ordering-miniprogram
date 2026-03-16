@@ -1,5 +1,6 @@
 {
   "navigationBarTitleText": "管理后台",
+  "enablePullDownRefresh": true,
   "usingComponents": {
     "status-chip": "/components/status-chip/index"
   }

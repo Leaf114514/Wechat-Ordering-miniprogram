@@ -83,6 +83,13 @@ Component({
      * 增加数量。
      */
     increase() {
+      const dish = this.properties.dish || {}
+      const stock = Number(dish.stock || 0)
+
+      if (stock <= 0 || this.data.quantity >= stock) {
+        return
+      }
+
       this.setData({ quantity: this.data.quantity + 1 })
       this.refreshPrice()
     },
@@ -99,7 +106,7 @@ Component({
         const selectedOption = (group.options || []).find((option) => {
           return option.label === selectedLabel
         })
-        finalPrice += Number(selectedOption && selectedOption.delta || 0)
+        finalPrice += Number((selectedOption && selectedOption.delta) || 0)
       })
 
       finalPrice *= this.data.quantity
@@ -120,6 +127,10 @@ Component({
      */
     confirm() {
       const dish = this.properties.dish || {}
+      if (Number(dish.stock || 0) <= 0) {
+        return
+      }
+
       const selections = (dish.specs || []).map((group) => {
         const selectedLabel = this.data.selectedMap[group.name]
         const selectedOption = (group.options || []).find((option) => {

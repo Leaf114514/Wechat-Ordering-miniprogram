@@ -28,25 +28,6 @@ function formatTimestamp(timestamp) {
 }
 
 /**
- * 将数组拆分为两列瀑布流。
- * @param {Array} list - 菜品列表。
- * @returns {{left:Array,right:Array}} 两列数据。
- */
-function splitWaterfallList(list) {
-  const columns = {
-    left: [],
-    right: []
-  }
-
-  list.forEach((item, index) => {
-    const columnKey = index % 2 === 0 ? 'left' : 'right'
-    columns[columnKey].push(item)
-  })
-
-  return columns
-}
-
-/**
  * 组合规格描述。
  * @param {Array} selections - 已选规格数组。
  * @returns {string} 规格展示文本。
@@ -73,7 +54,6 @@ function clonePlainData(value) {
 module.exports = {
   formatCurrency,
   formatTimestamp,
-  splitWaterfallList,
   joinSelections,
   clonePlainData
 }

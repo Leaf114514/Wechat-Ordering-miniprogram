@@ -91,7 +91,7 @@ async function getPersonalRecommendations(params) {
 
   if (!ownedDishIds.length) {
     return dishes.slice(0, limit).map((item) => {
-      item.reason = '热销优先推荐'
+      item.reason = '你还没有历史订单，先从店内热销开始推荐'
       return item
     })
   }
@@ -126,7 +126,7 @@ async function getPersonalRecommendations(params) {
     .filter(Boolean)
     .slice(0, limit)
     .map((item) => {
-      item.reason = '与你口味相近的食客也常点这道'
+      item.reason = '与你口味相近的食客也常点这道菜'
       return item
     })
 
@@ -135,7 +135,7 @@ async function getPersonalRecommendations(params) {
   }
 
   return dishes.slice(0, limit).map((item) => {
-    item.reason = '根据热销榜补充推荐'
+    item.reason = '根据热销榜为你补充推荐'
     return item
   })
 }

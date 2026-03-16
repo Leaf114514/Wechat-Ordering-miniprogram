@@ -2,7 +2,7 @@ const config = require('../../config/index')
 const userService = require('../../services/userService')
 const orderService = require('../../services/orderService')
 const recommendService = require('../../services/recommendService')
-const { feedback, navigation } = require('../../utils/wechat')
+const { feedback, navigation } = require('../../utils/wechat/index')
 
 Page({
   data: {
