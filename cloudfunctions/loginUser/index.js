@@ -31,14 +31,9 @@ exports.main = async (event) => {
       const currentUser = users.data[0]
       const updates = {
         lastLoginAt: now,
-        updatedAt: now
-      }
-
-      if (safeNickname) {
-        updates.nickname = safeNickname
-      }
-      if (safeAvatarUrl) {
-        updates.avatarUrl = safeAvatarUrl
+        updatedAt: now,
+        nickname: safeNickname,
+        avatarUrl: safeAvatarUrl
       }
 
       await db.collection('users').doc(currentUser._id).update({

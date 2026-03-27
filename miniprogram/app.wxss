@@ -45,7 +45,9 @@ button::after {
 }
 
 .fade-enter {
+  opacity: 1;
   animation: fadeEnter 360ms ease;
+  will-change: transform;
 }
 
 .scale-pop {
@@ -73,12 +75,10 @@ button::after {
 
 @keyframes fadeEnter {
   from {
-    opacity: 0;
     transform: translate3d(0, 20rpx, 0);
   }
 
   to {
-    opacity: 1;
     transform: translate3d(0, 0, 0);
   }
 }

@@ -40,7 +40,8 @@
   font-weight: 600;
 }
 
-.popup-desc {
+.popup-desc,
+.popup-stock {
   display: block;
   margin-top: 10rpx;
   color: var(--color-subtext);
@@ -128,4 +129,9 @@
   color: #fff;
   font-size: 28rpx;
   font-weight: 600;
+}
+
+.confirm-button.is-disabled {
+  background: #d7d7d7;
+  color: #f8f8f8;
 }

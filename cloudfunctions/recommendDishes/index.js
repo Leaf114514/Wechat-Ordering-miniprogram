@@ -82,7 +82,7 @@ exports.main = async (event) => {
       return {
         code: 0,
         data: dishes.slice(0, limit).map((dish) => {
-          dish.reason = '热销优先推荐'
+          dish.reason = '你还没有历史订单，先看看店内热销菜品'
           return dish
         })
       }
@@ -117,7 +117,7 @@ exports.main = async (event) => {
       .filter(Boolean)
       .slice(0, limit)
       .map((dish) => {
-        dish.reason = '与你口味相近的食客也常点这道'
+        dish.reason = '与你口味相近的食客也常点这道菜'
         return dish
       })
 
@@ -126,9 +126,9 @@ exports.main = async (event) => {
       data: recommended.length
         ? recommended
         : dishes.slice(0, limit).map((dish) => {
-            dish.reason = '根据热销榜补充推荐'
-            return dish
-          })
+          dish.reason = '没有命中协同推荐，先为你展示热销榜单'
+          return dish
+        })
     }
   } catch (error) {
     console.error('[recommendDishes] failed', error)

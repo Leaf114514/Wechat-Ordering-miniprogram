@@ -2,20 +2,25 @@
   <view class="store-banner card-surface">
     <view class="store-main">
       <text class="store-title">{{restaurantProfile.name}}</text>
-      <text class="store-subtitle">点餐相关模块已统一迁移到本页</text>
+      <text class="store-subtitle">{{restaurantProfile.slogan}}</text>
       <text class="store-status">
-        {{isLoggedIn ? '当前已登录，可直接下单' : '当前未登录，可先浏览菜单'}}
+        {{isLoggedIn ? '当前已登录，可直接下单并查看订单状态。' : '当前未登录，可以先浏览菜单，提交订单前请先登录。'}}
       </text>
+      <view class="store-meta">
+        <text class="store-meta-item">{{restaurantProfile.pickupTimeText}}</text>
+        <text class="store-meta-item">{{restaurantProfile.perCapitaText}}</text>
+      </view>
     </view>
     <view class="store-actions">
       <button class="ghost-button" bindtap="openOrdersPage">我的订单</button>
-      <button class="ghost-button" bindtap="goUserTab">个人信息</button>
+      <button class="ghost-button" bindtap="openStoreLocation">门店导航</button>
+      <button class="ghost-button" bindtap="goUserTab">个人中心</button>
     </view>
   </view>
 
   <view wx:if="{{!isLoggedIn}}" class="login-tip card-surface">
-    <text class="login-tip-title">未登录状态下可浏览菜品</text>
-    <text class="login-tip-text">下单前请先前往“我的”页面完成微信登录</text>
+    <text class="login-tip-title">未登录也能先浏览菜品</text>
+    <text class="login-tip-text">提交订单前请前往“我的”页完成微信登录，以便保存订单与身份信息。</text>
     <button class="primary-button" bindtap="goUserTab">去登录</button>
   </view>
 
@@ -37,10 +42,26 @@
     <text class="remark-label">订单备注</text>
     <input
       class="remark-input"
-      placeholder="如：少冰、不要香菜、打包"
+      placeholder="例如：少冰、不放香菜、打包带走"
       value="{{remark}}"
       bindinput="handleRemarkInput"
     />
+  </view>
+
+  <view wx:if="{{loading && !dishList.length}}" class="state-card card-surface">
+    <text class="state-title">菜单加载中</text>
+    <text class="state-subtitle">正在为你准备本店今日可售菜品。</text>
+  </view>
+
+  <view wx:if="{{errorMessage && !dishList.length}}" class="state-card card-surface">
+    <text class="state-title">菜单加载失败</text>
+    <text class="state-subtitle">{{errorMessage}}</text>
+    <button class="primary-button" bindtap="reloadDishFeed">重新加载</button>
+  </view>
+
+  <view wx:if="{{!loading && !errorMessage && !dishList.length}}" class="state-card card-surface">
+    <text class="state-title">当前分类暂无菜品</text>
+    <text class="state-subtitle">可以切换其他分类看看，或等待管理员补充上架。</text>
   </view>
 
   <view class="dish-list">
@@ -48,12 +69,13 @@
       wx:for="{{dishList}}"
       wx:key="_id"
       dish="{{item}}"
-      bind:select="handleDishSelect"
-      bind:add="handleAddDish"
+      bind:dishselect="handleDishSelect"
+      bind:dishadd="handleAddDish"
     />
   </view>
 
-  <view wx:if="{{!hasMore}}" class="load-tip">已经到底啦，换个分类试试</view>
+  <view wx:if="{{loadingMore}}" class="load-tip">正在加载更多菜品…</view>
+  <view wx:elif="{{!hasMore && dishList.length}}" class="load-tip">已经到底了，换个分类试试吧</view>
 
   <cart-panel
     items="{{cartItems}}"

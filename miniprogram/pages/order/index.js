@@ -3,6 +3,24 @@ const dishService = require('../../services/dishService')
 const cartService = require('../../services/cartService')
 const orderService = require('../../services/orderService')
 const userService = require('../../services/userService')
+const { PAGE_ROUTES } = require('../../constants/index')
+const {
+  feedback,
+  navigation,
+  page: pageActions,
+  modal,
+  location
+} = require('../../utils/wechat/index')
+
+/**
+ * 在需要登录的场景中统一提示并跳转到个人中心。
+ * 该逻辑仅服务当前点餐页，因此保留在页面局部，避免过度抽象。
+ * @param {string} message - 提示文案。
+ */
+function redirectToUserTabWithMessage(message) {
+  feedback.showError(message)
+  navigation.switchTabLater(PAGE_ROUTES.USER, 300)
+}
 
 Page({
   data: {
@@ -12,6 +30,7 @@ Page({
     cartItems: [],
     cartSummary: {
       totalCount: 0,
+      totalPrice: 0,
       totalPriceText: '0.00'
     },
     currentUser: null,
@@ -20,19 +39,22 @@ Page({
     specPopupVisible: false,
     pageNo: 1,
     hasMore: true,
+    loading: true,
+    loadingMore: false,
+    errorMessage: '',
     remark: '',
     restaurantProfile: config.restaurantProfile
   },
 
   /**
-   * 页面加载。
+   * 页面加载时初始化分类、菜品和用户状态。
    */
   async onLoad() {
     await this.initializePage()
   },
 
   /**
-   * 页面显示时同步状态。
+   * 页面展示时同步购物车和登录态。
    */
   onShow() {
     this.syncCartState()
@@ -40,18 +62,17 @@ Page({
   },
 
   /**
-   * 下拉刷新菜单。
+   * 处理下拉刷新。
    */
   async onPullDownRefresh() {
-    await this.reloadDishFeed()
-    wx.stopPullDownRefresh()
+    await pageActions.withPullDownRefresh(() => this.reloadDishFeed())
   },
 
   /**
-   * 触底加载更多菜品。
+   * 触底时继续加载下一页菜品。
    */
   async onReachBottom() {
-    if (!this.data.hasMore) {
+    if (!this.data.hasMore || this.data.loadingMore || this.data.loading) {
       return
     }
 
@@ -59,7 +80,7 @@ Page({
   },
 
   /**
-   * 初始化点餐页。
+   * 初始化点餐页核心数据。
    */
   async initializePage() {
     try {
@@ -69,15 +90,17 @@ Page({
       this.syncCartState()
       this.syncUserState()
     } catch (error) {
-      wx.showToast({
-        title: error.message || '点餐页初始化失败',
-        icon: 'none'
+      const errorMessage = error.message || '点餐页初始化失败'
+      this.setData({
+        loading: false,
+        errorMessage
       })
+      feedback.showError(errorMessage)
     }
   },
 
   /**
-   * 同步登录状态。
+   * 同步当前登录状态。
    */
   syncUserState() {
     const currentUser = userService.getCachedUser()
@@ -88,50 +111,74 @@ Page({
   },
 
   /**
-   * 重新加载菜品列表。
+   * 从第一页重新拉取菜品列表。
    */
   async reloadDishFeed() {
     this.setData({
       pageNo: 1,
-      dishList: []
+      dishList: [],
+      hasMore: true,
+      errorMessage: ''
     })
     await this.loadDishFeed(true)
   },
 
   /**
-   * 加载瀑布流菜品。
-   * @param {boolean} reset - 是否重置。
+   * 加载菜品流数据。
+   * @param {boolean} reset - 是否从第一页开始加载。
    */
   async loadDishFeed(reset) {
     const pageNo = reset ? 1 : this.data.pageNo + 1
-    const result = await dishService.getHomeFeed({
-      category: this.data.activeCategory,
-      pageNo,
-      pageSize: config.pageSize
-    })
-    const dishList = reset
-      ? result.list
-      : this.data.dishList.concat(result.list)
-    this.setData({
-      pageNo,
-      dishList,
-      hasMore: result.hasMore
-    })
+
+    this.setData(reset ? { loading: true } : { loadingMore: true })
+
+    try {
+      const result = await dishService.getHomeFeed({
+        category: this.data.activeCategory,
+        pageNo,
+        pageSize: config.pageSize
+      })
+      const dishList = reset
+        ? result.list
+        : this.data.dishList.concat(result.list)
+
+      this.setData({
+        pageNo,
+        dishList,
+        hasMore: result.hasMore,
+        errorMessage: ''
+      })
+    } catch (error) {
+      const errorMessage = error.message || '菜品加载失败'
+      this.setData({
+        errorMessage
+      })
+      feedback.showError(errorMessage)
+    } finally {
+      this.setData({
+        loading: false,
+        loadingMore: false
+      })
+    }
   },
 
   /**
-   * 切换分类。
-   * @param {Object} event - 事件对象。
+   * 切换菜品分类并刷新列表。
+   * @param {Object} event - 点击事件对象。
    */
   async handleCategoryTap(event) {
     const category = event.currentTarget.dataset.category
+    if (category === this.data.activeCategory) {
+      return
+    }
+
     this.setData({ activeCategory: category })
     await this.reloadDishFeed()
   },
 
   /**
-   * 打开规格选择弹窗。
-   * @param {Object} event - 事件对象。
+   * 打开规格弹窗。
+   * @param {Object} event - 菜品卡片事件对象。
    */
   handleDishSelect(event) {
     const dish = event.detail.dish
@@ -142,8 +189,9 @@ Page({
   },
 
   /**
-   * 点击加入购物车。
-   * @param {Object} event - 事件对象。
+   * 快速加购。
+   * 有规格的菜品仍走规格弹窗，避免页面层直接拼装复杂商品数据。
+   * @param {Object} event - 菜品事件对象。
    */
   handleAddDish(event) {
     const dish = event.detail.dish
@@ -152,12 +200,13 @@ Page({
       return
     }
 
-    cartService.addCartItem(dish, [], 1)
-    this.syncCartState()
-    wx.showToast({
-      title: '已加入购物车',
-      icon: 'success'
-    })
+    try {
+      cartService.addCartItem(dish, [], 1)
+      this.syncCartState()
+      feedback.showSuccess('已加入购物车')
+    } catch (error) {
+      feedback.showError(error.message || '加入购物车失败')
+    }
   },
 
   /**
@@ -168,22 +217,24 @@ Page({
   },
 
   /**
-   * 确认规格选择。
-   * @param {Object} event - 事件对象。
+   * 确认规格选择并加入购物车。
+   * @param {Object} event - 规格弹窗确认事件。
    */
   handleSpecConfirm(event) {
     const detail = event.detail
-    cartService.addCartItem(detail.dish, detail.selections, detail.quantity)
-    this.setData({ specPopupVisible: false })
-    this.syncCartState()
-    wx.showToast({
-      title: '加入成功',
-      icon: 'success'
-    })
+
+    try {
+      cartService.addCartItem(detail.dish, detail.selections, detail.quantity)
+      this.setData({ specPopupVisible: false })
+      this.syncCartState()
+      feedback.showSuccess('加入成功')
+    } catch (error) {
+      feedback.showError(error.message || '加入购物车失败')
+    }
   },
 
   /**
-   * 同步购物车状态。
+   * 同步购物车视图数据。
    */
   syncCartState() {
     const cartItems = cartService.getCartItems()
@@ -192,98 +243,110 @@ Page({
   },
 
   /**
-   * 处理购物车变更。
-   * @param {Object} event - 事件对象。
+   * 处理购物车数量变更或删除动作。
+   * @param {Object} event - 购物车组件事件。
    */
-  handleCartChange(event) {
+  async handleCartChange(event) {
     const detail = event.detail
 
     if (detail.type === 'quantity') {
-      cartService.updateCartCount(detail.itemKey, detail.delta)
+      try {
+        cartService.updateCartCount(detail.itemKey, detail.delta)
+        this.syncCartState()
+      } catch (error) {
+        feedback.showError(error.message || '购物车更新失败')
+      }
+      return
     }
 
     if (detail.type === 'delete') {
-      cartService.removeCartItem(detail.itemKey)
-    }
+      const confirmed = await modal.confirm({
+        title: '移除菜品',
+        content: '确认将这份菜品从购物车中移除吗？'
+      })
 
-    this.syncCartState()
+      if (!confirmed) {
+        return
+      }
+
+      cartService.removeCartItem(detail.itemKey)
+      this.syncCartState()
+      feedback.showSuccess('已移除')
+    }
   },
 
   /**
-   * 记录订单备注。
-   * @param {Object} event - 事件对象。
+   * 记录订单备注输入。
+   * @param {Object} event - 输入事件对象。
    */
   handleRemarkInput(event) {
     this.setData({ remark: event.detail.value })
   },
 
   /**
-   * 提交订单。
+   * 打开门店定位。
+   */
+  openStoreLocation() {
+    const profile = this.data.restaurantProfile
+    location.openLocation({
+      latitude: profile.latitude,
+      longitude: profile.longitude,
+      name: profile.name,
+      address: profile.address,
+      scale: 16
+    })
+  },
+
+  /**
+   * 提交订单，并在成功后清空购物车与跳转订单页。
    */
   async handleCheckout() {
     if (!this.data.cartItems.length) {
+      feedback.showError('购物车还是空的，先选几道喜欢的菜吧')
       return
     }
 
     if (!this.data.isLoggedIn) {
-      wx.showToast({
-        title: '请先登录后再下单',
-        icon: 'none'
-      })
-      setTimeout(() => {
-        wx.switchTab({ url: '/pages/user/index' })
-      }, 400)
+      redirectToUserTabWithMessage('请先登录后再下单')
       return
     }
 
-    wx.showLoading({ title: '正在创建订单' })
     try {
-      const result = await orderService.placeOrder({
-        cartItems: this.data.cartItems,
-        totalPrice: this.data.cartSummary.totalPriceText,
-        remark: this.data.remark
+      const result = await feedback.withLoading('正在创建订单', () => {
+        return orderService.placeOrder({
+          cartItems: this.data.cartItems,
+          totalPrice: this.data.cartSummary.totalPrice,
+          remark: this.data.remark
+        })
       })
+
       cartService.clearCartItems()
       this.syncCartState()
       this.setData({ remark: '' })
-      wx.hideLoading()
-      wx.showToast({
-        title: `订单已创建 ¥${result.totalPriceText}`,
-        icon: 'success'
-      })
+      feedback.showSuccess(`下单成功，合计 ¥${result.totalPriceText}`)
       await this.reloadDishFeed()
-      wx.navigateTo({ url: '/pages/orders/index' })
+      navigation.navigateTo(PAGE_ROUTES.ORDERS)
     } catch (error) {
-      wx.hideLoading()
-      wx.showToast({
-        title: error.message || '创建订单失败',
-        icon: 'none'
-      })
+      feedback.showError(error.message || '创建订单失败')
     }
   },
 
   /**
-   * 打开订单列表页。
+   * 打开订单列表页，未登录时先引导登录。
    */
   openOrdersPage() {
     if (!this.data.isLoggedIn) {
-      wx.showToast({
-        title: '请先登录后查看订单',
-        icon: 'none'
-      })
-      setTimeout(() => {
-        wx.switchTab({ url: '/pages/user/index' })
-      }, 400)
+      redirectToUserTabWithMessage('请先登录后查看订单')
       return
     }
 
-    wx.navigateTo({ url: '/pages/orders/index' })
+    navigation.navigateTo(PAGE_ROUTES.ORDERS)
   },
 
   /**
-   * 跳转到用户页。
+   * 跳转到个人中心。
    */
   goUserTab() {
-    wx.switchTab({ url: '/pages/user/index' })
+    navigation.switchTab(PAGE_ROUTES.USER)
   }
 })

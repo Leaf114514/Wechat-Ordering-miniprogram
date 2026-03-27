@@ -2,7 +2,54 @@ const config = require('../../config/index')
 const userService = require('../../services/userService')
 const orderService = require('../../services/orderService')
 const recommendService = require('../../services/recommendService')
-const { DEFAULT_AVATAR_URL } = require('../../constants/index')
+const { DEFAULT_AVATAR_URL, PAGE_ROUTES, USER_ROLE } = require('../../constants/index')
+const {
+  feedback,
+  navigation,
+  modal,
+  location
+} = require('../../utils/wechat/index')
+
+/**
+ * 构建未登录状态下的页面数据。
+ * @param {Object} app - 小程序实例。
+ * @returns {Object} 游客态页面数据。
+ */
+function buildGuestState(app) {
+  return {
+    currentUser: null,
+    hasLogin: false,
+    isAdmin: false,
+    metrics: null,
+    recommendList: [],
+    draftAvatarUrl: DEFAULT_AVATAR_URL,
+    draftNickname: '',
+    useMockData: app.globalData.useMockData,
+    cloudEnvId: app.globalData.cloudEnvId || '未配置',
+    restaurantProfile: app.globalData.restaurantProfile
+  }
+}
+
+/**
+ * 构建已登录状态下的页面数据。
+ * @param {Object} app - 小程序实例。
+ * @param {Object} currentUser - 当前用户。
+ * @returns {Object} 登录态页面数据。
+ */
+function buildLoggedState(app, currentUser) {
+  return {
+    currentUser,
+    hasLogin: true,
+    isAdmin: currentUser.role === USER_ROLE.ADMIN,
+    metrics: null,
+    recommendList: [],
+    draftAvatarUrl: currentUser.avatarUrl || DEFAULT_AVATAR_URL,
+    draftNickname: currentUser.nickname || '',
+    useMockData: app.globalData.useMockData,
+    cloudEnvId: app.globalData.cloudEnvId || '未配置',
+    restaurantProfile: app.globalData.restaurantProfile
+  }
+}
 
 Page({
   data: {
@@ -16,87 +63,41 @@ Page({
     draftNickname: '',
     useMockData: config.useMockData,
     cloudEnvId: config.cloudEnvId || '未配置',
-    featureList: [
-      {
-        key: 'orders',
-        title: '我的订单',
-        tip: '查看订单状态与历史记录',
-        url: '/pages/orders/index',
-        isTab: false
-      },
-      {
-        key: 'order',
-        title: '开始点餐',
-        tip: '浏览菜品并加入购物车',
-        url: '/pages/order/index',
-        isTab: true
-      },
-      {
-        key: 'coupon',
-        title: '会员权益',
-        tip: '模板模块，可扩展积分与优惠券',
-        placeholder: true
-      },
-      {
-        key: 'profile',
-        title: '收货信息',
-        tip: '模板模块，可扩展地址与发票',
-        placeholder: true
-      }
-    ]
+    restaurantProfile: config.restaurantProfile
   },
 
   /**
-   * 页面加载。
+   * 页面首次加载时同步个人中心数据。
    */
   async onLoad() {
     await this.syncUserPage()
   },
 
   /**
-   * 页面展示时刷新用户状态。
+   * 页面显示时刷新用户状态与模块数据。
    */
   async onShow() {
     await this.syncUserPage()
   },
 
   /**
-   * 同步用户页数据。
+   * 同步个人中心基础状态。
    */
   async syncUserPage() {
     const app = getApp()
     const currentUser = userService.getCachedUser()
 
     if (!currentUser) {
-      this.setData({
-        currentUser: null,
-        hasLogin: false,
-        isAdmin: false,
-        metrics: null,
-        recommendList: [],
-        draftAvatarUrl: DEFAULT_AVATAR_URL,
-        draftNickname: '',
-        useMockData: app.globalData.useMockData,
-        cloudEnvId: app.globalData.cloudEnvId || '未配置'
-      })
+      this.setData(buildGuestState(app))
       return
     }
 
-    this.setData({
-      currentUser,
-      hasLogin: true,
-      isAdmin: currentUser.role === 'admin',
-      draftAvatarUrl: currentUser.avatarUrl || DEFAULT_AVATAR_URL,
-      draftNickname: currentUser.nickname || '',
-      useMockData: app.globalData.useMockData,
-      cloudEnvId: app.globalData.cloudEnvId || '未配置'
-    })
-
+    this.setData(buildLoggedState(app, currentUser))
     await this.loadUserModules(currentUser)
   },
 
   /**
-   * 加载登录后的模块数据。
+   * 加载登录后的统计与推荐数据。
    * @param {Object} currentUser - 当前用户。
    */
   async loadUserModules(currentUser) {
@@ -108,18 +109,16 @@ Page({
           limit: 4
         })
       ])
+
       this.setData({ metrics, recommendList })
     } catch (error) {
-      wx.showToast({
-        title: error.message || '个人信息加载失败',
-        icon: 'none'
-      })
+      feedback.showError(error.message || '个人信息加载失败')
     }
   },
 
   /**
-   * 选择微信头像。
-   * @param {Object} event - 事件对象。
+   * 选择微信头像后同步到草稿状态。
+   * @param {Object} event - 头像选择事件对象。
    */
   handleChooseAvatar(event) {
     this.setData({
@@ -128,8 +127,8 @@ Page({
   },
 
   /**
-   * 输入微信昵称。
-   * @param {Object} event - 事件对象。
+   * 输入微信昵称草稿。
+   * @param {Object} event - 输入事件对象。
    */
   handleNickNameInput(event) {
     this.setData({
@@ -138,84 +137,84 @@ Page({
   },
 
   /**
-   * 执行微信登录。
+   * 发起微信登录，并在成功后刷新个人中心数据。
    */
   async handleWechatLogin() {
-    wx.showLoading({ title: '登录中' })
     try {
-      await userService.loginWithWechatProfile({
-        avatarUrl: this.data.draftAvatarUrl,
-        nickname: this.data.draftNickname
+      await feedback.withLoading('登录中', () => {
+        return userService.loginWithWechatProfile({
+          avatarUrl: this.data.draftAvatarUrl,
+          nickname: this.data.draftNickname
+        })
       })
-      wx.hideLoading()
-      wx.showToast({
-        title: '登录成功',
-        icon: 'success'
-      })
+      feedback.showSuccess('登录成功')
       await this.syncUserPage()
     } catch (error) {
-      wx.hideLoading()
-      wx.showToast({
-        title: error.message || '登录失败',
-        icon: 'none'
-      })
+      feedback.showError(error.message || '登录失败')
     }
   },
 
   /**
-   * 退出当前登录。
+   * 退出当前账号。
    */
   async handleLogout() {
+    const confirmed = await modal.confirm({
+      title: '退出登录',
+      content: '退出后将清空当前登录态，但不会删除你的订单记录。'
+    })
+
+    if (!confirmed) {
+      return
+    }
+
     userService.logoutCurrentUser()
     await this.syncUserPage()
-    wx.showToast({
-      title: '已退出登录',
-      icon: 'none'
+    feedback.showToast('已退出登录')
+  },
+
+  /**
+   * 打开订单列表页。
+   */
+  openOrdersPage() {
+    navigation.navigateTo(PAGE_ROUTES.ORDERS)
+  },
+
+  /**
+   * 跳转到点餐页。
+   */
+  openOrderPage() {
+    navigation.switchTab(PAGE_ROUTES.ORDER)
+  },
+
+  /**
+   * 打开门店定位。
+   */
+  openStoreLocation() {
+    const profile = this.data.restaurantProfile
+    location.openLocation({
+      latitude: profile.latitude,
+      longitude: profile.longitude,
+      name: profile.name,
+      address: profile.address,
+      scale: 16
     })
   },
 
   /**
-   * 打开功能入口。
-   * @param {Object} event - 事件对象。
-   */
-  handleOpenFeature(event) {
-    const item = this.data.featureList[
-      Number(event.currentTarget.dataset.index)
-    ]
-    if (item.placeholder) {
-      wx.showToast({
-        title: '模板模块，后续可继续扩展',
-        icon: 'none'
-      })
-      return
-    }
-
-    if (item.isTab) {
-      wx.switchTab({ url: item.url })
-      return
-    }
-
-    wx.navigateTo({ url: item.url })
-  },
-
-  /**
-   * 打开管理员页面。
+   * 打开后台管理页。
    */
   openAdminPage() {
-    wx.navigateTo({ url: '/pages/admin/index' })
+    navigation.navigateTo(PAGE_ROUTES.ADMIN)
   },
 
   /**
-   * 切换 Mock 身份。
-   * @param {Object} event - 事件对象。
+   * 在 mock 模式下切换演示身份。
+   * @param {Object} event - 角色切换事件对象。
    */
   async handleMockRoleSwitch(event) {
     const role = event.currentTarget.dataset.role
     await userService.switchMockRole(role)
     await this.syncUserPage()
-    wx.showToast({
-      title: '演示身份已切换',
-      icon: 'success'
-    })
+    feedback.showSuccess('演示身份已切换')
   }
 })

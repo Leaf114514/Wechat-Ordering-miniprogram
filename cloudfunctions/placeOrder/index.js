@@ -6,7 +6,7 @@ const db = cloud.database()
 const _ = db.command
 
 /**
- * 基于菜品和规格构建安全订单明细。
+ * 基于菜品与规格构建安全订单明细。
  * @param {Array} cartItems - 客户端购物车。
  * @param {Object} dishMap - 菜品映射。
  * @returns {{items:Array,totalPrice:number}} 安全订单结果。
@@ -30,11 +30,11 @@ function buildOrderItems(cartItems, dishMap) {
         dishId: dish._id,
         name: dish.name,
         image: dish.image,
-        quantity: cartItem.quantity,
+        quantity: Number(cartItem.quantity || 0),
         price: unitPrice,
         selections: safeSelections
       })
-      accumulator.totalPrice += unitPrice * cartItem.quantity
+      accumulator.totalPrice += unitPrice * Number(cartItem.quantity || 0)
       return accumulator
     },
     {
@@ -56,7 +56,7 @@ exports.main = async (event) => {
   if (!userId || !idempotencyToken || !cartItems.length) {
     return {
       code: 400,
-      message: '缺少必要下单参数'
+      message: '缺少必要的下单参数'
     }
   }
 
@@ -89,9 +89,9 @@ exports.main = async (event) => {
       cartItems.forEach((item) => {
         const dish = dishMap[item.dishId]
         if (!dish || !dish.isAvailable) {
-          throw new Error(`${item.name} 已下架，请刷新菜单`)
+          throw new Error(`${item.name} 已下架，请刷新菜单后重试`)
         }
-        if (dish.stock < item.quantity) {
+        if (Number(dish.stock || 0) < Number(item.quantity || 0)) {
           throw new Error(`${item.name} 库存不足，请稍后重试`)
         }
       })
@@ -103,7 +103,7 @@ exports.main = async (event) => {
         openId: wxContext.OPENID,
         status: 'pending_payment',
         totalPrice: Number(safeOrder.totalPrice.toFixed(2)),
-        remark,
+        remark: String(remark || '').trim(),
         dedupToken: idempotencyToken,
         items: safeOrder.items,
         stockRollbacked: false,

@@ -79,7 +79,7 @@ function saveMockUsers(users) {
 
 /**
  * 获取当前 Mock 用户。
- * @returns {Object|null} 用户对象。
+ * @returns {Object|null} 当前用户对象。
  */
 function getCurrentMockUser() {
   ensureMockSeeds()
